@@ -53,6 +53,9 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ Html.map ModalMsg (Modal.view model.modal)
+    div
+        []
+        [ button [] [ text "Supports focus" ]
+        , Html.map ModalMsg (Modal.view model.modal)
+        , button [] [ text "Supports focus" ]
         ]

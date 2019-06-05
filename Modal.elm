@@ -70,29 +70,24 @@ view model =
         [ button [] [ text "Supports keyboard focus" ]
         , case model of
             Opened ->
-                div
-                    [ style "border" "2px solid blue"
-                    , id "modal"
-                    ]
-                    [ text "Modal!"
-                    , div []
-                        [ button
-                            [ onClick CloseModal
-                            , Key.onKeyDown [ Key.tabBack (Focus "last-button") ]
-                            , id "first-button"
-                            ]
-                            [ text "Close Modal" ]
-                        , button
-                            [ Key.onKeyDown [ Key.tab (Focus "first-button") ]
-                            , id "last-button"
-                            ]
-                            [ text "other action" ]
+                div []
+                    [ button
+                        [ onClick CloseModal
+                        , Key.onKeyDown [ Key.tabBack (Focus "last-button") ]
+                        , id "first-button"
+                        ]
+                        [ text "Close Modal"
+                        ]
+                    , button
+                        [ Key.onKeyDown [ Key.tab (Focus "first-button") ]
+                        , id "last-button"
+                        ]
+                        [ text "other action"
                         ]
                     ]
 
             Closed ->
                 button [ onClick OpenModal ] [ text "Open Modal" ]
-        , button [] [ text "Supports focus" ]
         ]
 
 
