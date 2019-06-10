@@ -80,7 +80,7 @@ view model =
                         , modalContainer = viewModal
                         , title = ( "Single focusable element modal", [] )
                         , content =
-                            div []
+                            div [ style "display" "flex", style "justify-content" "space-between" ]
                                 [ text "Modal content"
                                 , button
                                     (Modal.closeOnClick
@@ -107,7 +107,7 @@ view model =
                         , modalContainer = viewModal
                         , title = ( "Two focusable elements modal", [] )
                         , content =
-                            div []
+                            div [ style "display" "flex", style "justify-content" "space-between" ]
                                 [ text "Modal content"
                                 , button
                                     (Modal.closeOnClick
@@ -115,10 +115,10 @@ view model =
                                     )
                                     [ text "Close Modal" ]
                                 , a
-                                    (Html.Attributes.href "www.noredink.com"
+                                    (Html.Attributes.href "#"
                                         :: Modal.lastFocusableElement
                                     )
-                                    [ text "Go to noredink.come" ]
+                                    [ text "I'm a link!" ]
                                 ]
                         }
                         modal
@@ -139,19 +139,19 @@ view model =
                         , modalContainer = viewModal
                         , title = ( "Three focusable elements modal", [] )
                         , content =
-                            div []
+                            div [ style "display" "flex", style "justify-content" "space-between" ]
                                 [ a
-                                    (Html.Attributes.href "www.noredink.com"
+                                    (Html.Attributes.href "#"
                                         :: Modal.firstFocusableElement
                                     )
-                                    [ text "Go to noredink.come" ]
+                                    [ text "I'm a link!" ]
                                 , button [ Modal.closeOnClick ]
                                     [ text "Close Modal" ]
                                 , a
-                                    (Html.Attributes.href "www.noredink.com"
+                                    (Html.Attributes.href "#"
                                         :: Modal.lastFocusableElement
                                     )
-                                    [ text "Go to noredink.come" ]
+                                    [ text "I'm a link!" ]
                                 ]
                         }
                         modal
@@ -171,8 +171,6 @@ viewModal =
         , style "border" "2px solid purple"
         , style "margin" "40px auto"
         , style "padding" "20px"
-        , style "display" "flex"
-        , style "flex-direction" "column"
         , style "max-width" "600px"
         , style "min-height" "40vh"
         ]
