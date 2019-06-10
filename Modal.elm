@@ -30,7 +30,7 @@ import Task
 
 {-| -}
 type Model
-    = Opened
+    = Opened String
     | Closed
 
 
@@ -42,7 +42,7 @@ init =
 
 {-| -}
 type Msg
-    = OpenModal
+    = OpenModal String
     | CloseModal
     | Focus String
     | Focused (Result Browser.Dom.Error ())
@@ -52,15 +52,18 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OpenModal ->
-            ( Opened
+        OpenModal returnFocusTo ->
+            ( Opened returnFocusTo
             , Cmd.none
             )
 
         CloseModal ->
-            ( Closed
-            , Cmd.none
-            )
+            case model of
+                Opened returnFocusTo ->
+                    ( Closed, Task.attempt Focused (focus returnFocusTo) )
+
+                Closed ->
+                    ( Closed, Cmd.none )
 
         Focus id ->
             ( model, Task.attempt Focused (focus id) )
@@ -79,7 +82,7 @@ view :
     -> Html msg
 view config model =
     case model of
-        Opened ->
+        Opened _ ->
             section
                 [ Role.dialog
                 , Aria.labeledBy modalTitleId
@@ -105,9 +108,15 @@ modalTitleId =
 
 
 {-| -}
-openOnClick : Attribute Msg
-openOnClick =
-    onClick OpenModal
+openOnClick : String -> List (Attribute Msg)
+openOnClick uniqueId =
+    let
+        elementId =
+            "modal__launch-element-" ++ uniqueId
+    in
+    [ id elementId
+    , onClick (OpenModal elementId)
+    ]
 
 
 {-| -}
@@ -147,7 +156,7 @@ lastFocusableElement =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model of
-        Opened ->
+        Opened _ ->
             Browser.Events.onKeyDown (Key.escape CloseModal)
 
         Closed ->

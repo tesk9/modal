@@ -73,7 +73,9 @@ view model =
                     [ h2 [] [ text "Single focusable element" ]
                     , Html.map (ModalMsg 0)
                         (Modal.view
-                            { ifClosed = button [ Modal.openOnClick ] [ text "Launch Modal" ]
+                            { ifClosed =
+                                button (Modal.openOnClick "0")
+                                    [ text "Launch Modal" ]
                             , title = ( "Single focusable element modal", [] )
                             , content =
                                 div []
@@ -97,7 +99,9 @@ view model =
                     [ h2 [] [ text "Two focusable elements" ]
                     , Html.map (ModalMsg 1)
                         (Modal.view
-                            { ifClosed = button [ Modal.openOnClick ] [ text "Launch Modal" ]
+                            { ifClosed =
+                                button (Modal.openOnClick "1")
+                                    [ text "Launch Modal" ]
                             , title = ( "Two focusable elements modal", [] )
                             , content =
                                 div []
@@ -126,7 +130,9 @@ view model =
                     [ h2 [] [ text "Three focusable elements" ]
                     , Html.map (ModalMsg 2)
                         (Modal.view
-                            { ifClosed = button [ Modal.openOnClick ] [ text "Launch Modal" ]
+                            { ifClosed =
+                                button (Modal.openOnClick "2")
+                                    [ text "Launch Modal" ]
                             , title = ( "Three focusable elements modal", [] )
                             , content =
                                 div []
