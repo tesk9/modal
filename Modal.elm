@@ -76,6 +76,7 @@ update msg model =
 view :
     { ifClosed : Html msg
     , overlayColor : String
+    , modalContainer : List (Html msg) -> Html msg
     , title : ( String, List (Attribute Never) )
     , content : Html msg
     }
@@ -92,7 +93,7 @@ view config model =
                 , style "height" "100%"
                 , style "background-color" config.overlayColor
                 ]
-                [ viewModal config
+                [ config.modalContainer [ viewModal config ]
                 ]
 
         Closed ->

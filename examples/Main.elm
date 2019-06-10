@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser exposing (element)
 import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes
+import Html.Attributes exposing (style)
 import Modal
 import Platform
 
@@ -77,6 +77,7 @@ view model =
                             button (Modal.openOnClick "0")
                                 [ text "Launch Modal" ]
                         , overlayColor = "rgba(128, 0, 128, 0.7)"
+                        , modalContainer = viewModal
                         , title = ( "Single focusable element modal", [] )
                         , content =
                             div []
@@ -103,6 +104,7 @@ view model =
                             button (Modal.openOnClick "1")
                                 [ text "Launch Modal" ]
                         , overlayColor = "rgba(128, 0, 70, 0.7)"
+                        , modalContainer = viewModal
                         , title = ( "Two focusable elements modal", [] )
                         , content =
                             div []
@@ -134,6 +136,7 @@ view model =
                             button (Modal.openOnClick "2")
                                 [ text "Launch Modal" ]
                         , overlayColor = "rgba(70, 0, 128, 0.7)"
+                        , modalContainer = viewModal
                         , title = ( "Three focusable elements modal", [] )
                         , content =
                             div []
@@ -157,4 +160,19 @@ view model =
 
             Nothing ->
                 text ""
+        ]
+
+
+viewModal : List (Html msg) -> Html msg
+viewModal =
+    div
+        [ style "background-color" "white"
+        , style "border-radius" "8px"
+        , style "border" "2px solid purple"
+        , style "margin" "40px auto"
+        , style "padding" "20px"
+        , style "display" "flex"
+        , style "flex-direction" "column"
+        , style "max-width" "600px"
+        , style "min-height" "40vh"
         ]
