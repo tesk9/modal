@@ -54,7 +54,7 @@ update msg model =
     case msg of
         OpenModal returnFocusTo ->
             ( Opened returnFocusTo
-            , Cmd.none
+            , Task.attempt Focused (focus firstId)
             )
 
         CloseModal ->
@@ -129,27 +129,37 @@ closeOnClick =
 singleFocusableElement : List (Attribute Msg)
 singleFocusableElement =
     [ Key.onKeyDown
-        [ Key.tabBack (Focus "modal__single-focusable-element")
-        , Key.tab (Focus "modal__single-focusable-element")
+        [ Key.tabBack (Focus firstId)
+        , Key.tab (Focus firstId)
         ]
-    , id "modal__single-focusable-element"
+    , id firstId
     ]
 
 
 {-| -}
 firstFocusableElement : List (Attribute Msg)
 firstFocusableElement =
-    [ Key.onKeyDown [ Key.tabBack (Focus "modal__last-focusable-element") ]
-    , id "modal__first-focusable-element"
+    [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
+    , id firstId
     ]
 
 
 {-| -}
 lastFocusableElement : List (Attribute Msg)
 lastFocusableElement =
-    [ Key.onKeyDown [ Key.tab (Focus "modal__first-focusable-element") ]
-    , id "modal__last-focusable-element"
+    [ Key.onKeyDown [ Key.tab (Focus firstId) ]
+    , id lastId
     ]
+
+
+firstId : String
+firstId =
+    "modal__first-focusable-element"
+
+
+lastId : String
+lastId =
+    "modal__last-focusable-element"
 
 
 {-| -}
