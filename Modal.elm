@@ -2,6 +2,8 @@ module Modal exposing
     ( Model, init, subscriptions
     , Msg, update
     , view
+    , openOnClick, closeOnClick
+    , firstFocusableElement, lastFocusableElement, singleFocusableElement
     )
 
 {-|
@@ -9,6 +11,8 @@ module Modal exposing
 @docs Model, init, subscriptions
 @docs Msg, update
 @docs view
+@docs openOnClick, closeOnClick
+@docs firstFocusableElement, lastFocusableElement, singleFocusableElement
 
 -}
 
@@ -64,31 +68,60 @@ update msg model =
 
 
 {-| -}
-view : Model -> Html Msg
-view model =
-    div []
-        [ button [] [ text "Supports keyboard focus" ]
-        , case model of
-            Opened ->
-                div []
-                    [ button
-                        [ onClick CloseModal
-                        , Key.onKeyDown [ Key.tabBack (Focus "last-button") ]
-                        , id "first-button"
-                        ]
-                        [ text "Close Modal"
-                        ]
-                    , button
-                        [ Key.onKeyDown [ Key.tab (Focus "first-button") ]
-                        , id "last-button"
-                        ]
-                        [ text "other action"
-                        ]
-                    ]
+view :
+    { ifClosed : Html msg
+    , ifOpen : Html msg
+    }
+    -> Model
+    -> Html msg
+view config model =
+    case model of
+        Opened ->
+            div [ style "border" "1px solid black" ]
+                [ config.ifOpen
+                ]
 
-            Closed ->
-                button [ onClick OpenModal ] [ text "Open Modal" ]
+        Closed ->
+            config.ifClosed
+
+
+{-| -}
+openOnClick : Html.Attribute Msg
+openOnClick =
+    onClick OpenModal
+
+
+{-| -}
+closeOnClick : Html.Attribute Msg
+closeOnClick =
+    onClick CloseModal
+
+
+{-| -}
+singleFocusableElement : List (Html.Attribute Msg)
+singleFocusableElement =
+    [ Key.onKeyDown
+        [ Key.tabBack (Focus "modal__single-focusable-element")
+        , Key.tab (Focus "modal__single-focusable-element")
         ]
+    , id "modal__single-focusable-element"
+    ]
+
+
+{-| -}
+firstFocusableElement : List (Html.Attribute Msg)
+firstFocusableElement =
+    [ Key.onKeyDown [ Key.tabBack (Focus "modal__last-focusable-element") ]
+    , id "modal__first-focusable-element"
+    ]
+
+
+{-| -}
+lastFocusableElement : List (Html.Attribute Msg)
+lastFocusableElement =
+    [ Key.onKeyDown [ Key.tab (Focus "modal__first-focusable-element") ]
+    , id "modal__last-focusable-element"
+    ]
 
 
 {-| -}

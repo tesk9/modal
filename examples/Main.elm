@@ -56,6 +56,17 @@ view model =
     div
         []
         [ button [] [ text "Supports focus" ]
-        , Html.map ModalMsg (Modal.view model.modal)
+        , Html.map ModalMsg
+            (Modal.view
+                { ifClosed = button [ Modal.openOnClick ] [ text "Launch Modal" ]
+                , ifOpen =
+                    div []
+                        [ text "Modal content"
+                        , button (Modal.closeOnClick :: Modal.singleFocusableElement)
+                            [ text "Close Modal" ]
+                        ]
+                }
+                model.modal
+            )
         , button [] [ text "Supports focus" ]
         ]
