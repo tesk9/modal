@@ -16,11 +16,13 @@ module Modal exposing
 
 -}
 
+import Accessibility exposing (..)
+import Accessibility.Aria as Aria
 import Accessibility.Key as Key
+import Accessibility.Role as Role
 import Browser
 import Browser.Dom exposing (focus)
 import Browser.Events
-import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (id, style)
 import Html.Events exposing (onClick)
 import Task
@@ -70,35 +72,52 @@ update msg model =
 {-| -}
 view :
     { ifClosed : Html msg
-    , ifOpen : Html msg
+    , title : ( String, List (Attribute Never) )
+    , content : Html msg
     }
     -> Model
     -> Html msg
 view config model =
     case model of
         Opened ->
-            div [ style "border" "1px solid black" ]
-                [ config.ifOpen
+            section
+                [ Role.dialog
+                , Aria.labeledBy modalTitleId
+                ]
+                [ map never (viewTitle config.title)
+                , config.content
                 ]
 
         Closed ->
             config.ifClosed
 
 
+viewTitle : ( String, List (Attribute Never) ) -> Html Never
+viewTitle ( title, titleAttrs ) =
+    h1
+        (id modalTitleId :: titleAttrs)
+        [ text title ]
+
+
+modalTitleId : String
+modalTitleId =
+    "modal__title"
+
+
 {-| -}
-openOnClick : Html.Attribute Msg
+openOnClick : Attribute Msg
 openOnClick =
     onClick OpenModal
 
 
 {-| -}
-closeOnClick : Html.Attribute Msg
+closeOnClick : Attribute Msg
 closeOnClick =
     onClick CloseModal
 
 
 {-| -}
-singleFocusableElement : List (Html.Attribute Msg)
+singleFocusableElement : List (Attribute Msg)
 singleFocusableElement =
     [ Key.onKeyDown
         [ Key.tabBack (Focus "modal__single-focusable-element")
@@ -109,7 +128,7 @@ singleFocusableElement =
 
 
 {-| -}
-firstFocusableElement : List (Html.Attribute Msg)
+firstFocusableElement : List (Attribute Msg)
 firstFocusableElement =
     [ Key.onKeyDown [ Key.tabBack (Focus "modal__last-focusable-element") ]
     , id "modal__first-focusable-element"
@@ -117,7 +136,7 @@ firstFocusableElement =
 
 
 {-| -}
-lastFocusableElement : List (Html.Attribute Msg)
+lastFocusableElement : List (Attribute Msg)
 lastFocusableElement =
     [ Key.onKeyDown [ Key.tab (Focus "modal__first-focusable-element") ]
     , id "modal__last-focusable-element"

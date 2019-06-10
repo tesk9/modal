@@ -74,7 +74,8 @@ view model =
                     , Html.map (ModalMsg 0)
                         (Modal.view
                             { ifClosed = button [ Modal.openOnClick ] [ text "Launch Modal" ]
-                            , ifOpen =
+                            , title = ( "Single focusable element modal", [] )
+                            , content =
                                 div []
                                     [ text "Modal content"
                                     , button
@@ -97,7 +98,8 @@ view model =
                     , Html.map (ModalMsg 1)
                         (Modal.view
                             { ifClosed = button [ Modal.openOnClick ] [ text "Launch Modal" ]
-                            , ifOpen =
+                            , title = ( "Two focusable elements modal", [] )
+                            , content =
                                 div []
                                     [ text "Modal content"
                                     , button
@@ -125,10 +127,10 @@ view model =
                     , Html.map (ModalMsg 2)
                         (Modal.view
                             { ifClosed = button [ Modal.openOnClick ] [ text "Launch Modal" ]
-                            , ifOpen =
+                            , title = ( "Three focusable elements modal", [] )
+                            , content =
                                 div []
-                                    [ text "Modal content"
-                                    , a
+                                    [ a
                                         (Html.Attributes.href "www.noredink.com"
                                             :: Modal.firstFocusableElement
                                         )
