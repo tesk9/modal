@@ -70,26 +70,27 @@ view model =
         , case Dict.get 0 model of
             Just modal ->
                 section []
-                    [ h2 [] [ text "Single focusable element" ]
-                    , Html.map (ModalMsg 0)
-                        (Modal.view
-                            { ifClosed =
-                                button (Modal.openOnClick "0")
-                                    [ text "Launch Modal" ]
-                            , title = ( "Single focusable element modal", [] )
-                            , content =
-                                div []
-                                    [ text "Modal content"
-                                    , button
-                                        (Modal.closeOnClick
-                                            :: Modal.singleFocusableElement
-                                        )
-                                        [ text "Close Modal" ]
-                                    ]
-                            }
-                            modal
-                        )
+                    [ h2 []
+                        [ text "Single focusable element" ]
+                    , Modal.view
+                        { ifClosed =
+                            button (Modal.openOnClick "0")
+                                [ text "Launch Modal" ]
+                        , overlayColor = "rgba(128, 0, 128, 0.7)"
+                        , title = ( "Single focusable element modal", [] )
+                        , content =
+                            div []
+                                [ text "Modal content"
+                                , button
+                                    (Modal.closeOnClick
+                                        :: Modal.singleFocusableElement
+                                    )
+                                    [ text "Close Modal" ]
+                                ]
+                        }
+                        modal
                     ]
+                    |> Html.map (ModalMsg 0)
 
             Nothing ->
                 text ""
@@ -97,30 +98,30 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Two focusable elements" ]
-                    , Html.map (ModalMsg 1)
-                        (Modal.view
-                            { ifClosed =
-                                button (Modal.openOnClick "1")
-                                    [ text "Launch Modal" ]
-                            , title = ( "Two focusable elements modal", [] )
-                            , content =
-                                div []
-                                    [ text "Modal content"
-                                    , button
-                                        (Modal.closeOnClick
-                                            :: Modal.firstFocusableElement
-                                        )
-                                        [ text "Close Modal" ]
-                                    , a
-                                        (Html.Attributes.href "www.noredink.com"
-                                            :: Modal.lastFocusableElement
-                                        )
-                                        [ text "Go to noredink.come" ]
-                                    ]
-                            }
-                            modal
-                        )
+                    , Modal.view
+                        { ifClosed =
+                            button (Modal.openOnClick "1")
+                                [ text "Launch Modal" ]
+                        , overlayColor = "rgba(128, 0, 70, 0.7)"
+                        , title = ( "Two focusable elements modal", [] )
+                        , content =
+                            div []
+                                [ text "Modal content"
+                                , button
+                                    (Modal.closeOnClick
+                                        :: Modal.firstFocusableElement
+                                    )
+                                    [ text "Close Modal" ]
+                                , a
+                                    (Html.Attributes.href "www.noredink.com"
+                                        :: Modal.lastFocusableElement
+                                    )
+                                    [ text "Go to noredink.come" ]
+                                ]
+                        }
+                        modal
                     ]
+                    |> Html.map (ModalMsg 1)
 
             Nothing ->
                 text ""
@@ -128,31 +129,31 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Three focusable elements" ]
-                    , Html.map (ModalMsg 2)
-                        (Modal.view
-                            { ifClosed =
-                                button (Modal.openOnClick "2")
-                                    [ text "Launch Modal" ]
-                            , title = ( "Three focusable elements modal", [] )
-                            , content =
-                                div []
-                                    [ a
-                                        (Html.Attributes.href "www.noredink.com"
-                                            :: Modal.firstFocusableElement
-                                        )
-                                        [ text "Go to noredink.come" ]
-                                    , button [ Modal.closeOnClick ]
-                                        [ text "Close Modal" ]
-                                    , a
-                                        (Html.Attributes.href "www.noredink.com"
-                                            :: Modal.lastFocusableElement
-                                        )
-                                        [ text "Go to noredink.come" ]
-                                    ]
-                            }
-                            modal
-                        )
+                    , Modal.view
+                        { ifClosed =
+                            button (Modal.openOnClick "2")
+                                [ text "Launch Modal" ]
+                        , overlayColor = "rgba(70, 0, 128, 0.7)"
+                        , title = ( "Three focusable elements modal", [] )
+                        , content =
+                            div []
+                                [ a
+                                    (Html.Attributes.href "www.noredink.com"
+                                        :: Modal.firstFocusableElement
+                                    )
+                                    [ text "Go to noredink.come" ]
+                                , button [ Modal.closeOnClick ]
+                                    [ text "Close Modal" ]
+                                , a
+                                    (Html.Attributes.href "www.noredink.com"
+                                        :: Modal.lastFocusableElement
+                                    )
+                                    [ text "Go to noredink.come" ]
+                                ]
+                        }
+                        modal
                     ]
+                    |> Html.map (ModalMsg 2)
 
             Nothing ->
                 text ""

@@ -75,6 +75,7 @@ update msg model =
 {-| -}
 view :
     { ifClosed : Html msg
+    , overlayColor : String
     , title : ( String, List (Attribute Never) )
     , content : Html msg
     }
@@ -83,16 +84,35 @@ view :
 view config model =
     case model of
         Opened _ ->
-            section
-                [ Role.dialog
-                , Aria.labeledBy modalTitleId
+            div
+                [ style "position" "fixed"
+                , style "top" "0"
+                , style "left" "0"
+                , style "width" "100%"
+                , style "height" "100%"
+                , style "background-color" config.overlayColor
                 ]
-                [ map never (viewTitle config.title)
-                , config.content
+                [ viewModal config
                 ]
 
         Closed ->
             config.ifClosed
+
+
+viewModal :
+    { a
+        | title : ( String, List (Attribute Never) )
+        , content : Html msg
+    }
+    -> Html msg
+viewModal config =
+    section
+        [ Role.dialog
+        , Aria.labeledBy modalTitleId
+        ]
+        [ map never (viewTitle config.title)
+        , config.content
+        ]
 
 
 viewTitle : ( String, List (Attribute Never) ) -> Html Never
