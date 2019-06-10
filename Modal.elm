@@ -8,6 +8,39 @@ module Modal exposing
 
 {-|
 
+    import Html exposing (..)
+    import Html.Attributes exposing (style)
+    import Modal
+
+    view modalState =
+        Modal.view
+            { ifClosed =
+                button (Modal.openOnClick "intro-modal")
+                    [ text "Launch intro modal" ]
+            , overlayColor = "rgba(128, 0, 128, 0.7)"
+            , modalContainer =
+                div
+                    [ style "background-color" "white"
+                    , style "border-radius" "4px"
+                    , style "border" "2px solid purple"
+                    , style "margin" "40px auto"
+                    , style "padding" "20px"
+                    , style "max-width" "600px"
+                    , style "min-height" "40vh"
+                    ]
+            , title = ( "Intro Modal", [] )
+            , content =
+                div
+                    [ style "display" "flex"
+                    ]
+                    [ text "Welcome to this modal! I'm so happy to have you here with me."
+                    , button
+                        (Modal.closeOnClick :: Modal.singleFocusableElement)
+                        [ text "Close intro modal" ]
+                    ]
+            }
+            modalState
+
 @docs Model, init, subscriptions
 @docs Msg, update
 @docs view
