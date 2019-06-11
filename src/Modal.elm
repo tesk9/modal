@@ -130,6 +130,7 @@ view config model =
                 [ viewBackdrop config
                 , div (style "position" "relative" :: config.modalAttributes)
                     [ viewModal config ]
+                , Root.node "style" [] [ text "body {overflow: hidden;} " ]
                 ]
 
         Closed ->
