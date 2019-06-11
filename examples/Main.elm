@@ -22,9 +22,9 @@ main =
 init : {} -> ( Model, Cmd Msg )
 init flags =
     ( Dict.fromList
-        [ ( 0, Modal.init )
-        , ( 1, Modal.init )
-        , ( 2, Modal.init )
+        [ ( 0, Modal.init { dismissOnEscAndOverlayClick = True } )
+        , ( 1, Modal.init { dismissOnEscAndOverlayClick = True } )
+        , ( 2, Modal.init { dismissOnEscAndOverlayClick = True } )
         ]
     , Cmd.none
     )
@@ -76,7 +76,6 @@ view model =
                     , Modal.view
                         { overlayColor = "rgba(128, 0, 128, 0.7)"
                         , modalAttributes = modalAttributes
-                        , dismissOnEscAndOverlayClick = True
                         , wrapMsg = identity
                         , title = ( "Single focusable element modal", [] )
                         , content =
@@ -101,7 +100,6 @@ view model =
                     , Modal.view
                         { overlayColor = "rgba(128, 0, 70, 0.7)"
                         , modalAttributes = modalAttributes
-                        , dismissOnEscAndOverlayClick = True
                         , wrapMsg = identity
                         , title = ( "Two focusable elements modal", [] )
                         , content =
@@ -131,7 +129,6 @@ view model =
                     , Modal.view
                         { overlayColor = "rgba(70, 0, 128, 0.7)"
                         , modalAttributes = modalAttributes
-                        , dismissOnEscAndOverlayClick = True
                         , wrapMsg = identity
                         , title = ( "Three focusable elements modal", [] )
                         , content =

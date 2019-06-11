@@ -17,7 +17,6 @@ module Modal exposing
     view modalState =
         Modal.view
             { overlayColor = "rgba(128, 0, 128, 0.7)"
-            , dismissOnEscAndOverlayClick = False
             , wrapMsg = identity
             , modalAttributes =
                 [ style "background-color" "white"
@@ -39,7 +38,7 @@ module Modal exposing
                         [ text "Close intro modal" ]
                     ]
             }
-            modalState
+            { dismissOnEscAndOverlayClick = False }
 
 @docs Model, init, subscriptions
 @docs Msg, update, close
@@ -62,16 +61,24 @@ import Html.Events exposing (onClick)
 import Task
 
 
+type alias Model =
+    { state : State
+    , dismissOnEscAndOverlayClick : Bool
+    }
+
+
 {-| -}
-type Model
+type State
     = Opened String
     | Closed
 
 
 {-| -}
-init : Model
-init =
-    Closed
+init : { dismissOnEscAndOverlayClick : Bool } -> Model
+init { dismissOnEscAndOverlayClick } =
+    { state = Closed
+    , dismissOnEscAndOverlayClick = dismissOnEscAndOverlayClick
+    }
 
 
 {-| -}
@@ -87,17 +94,17 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OpenModal returnFocusTo ->
-            ( Opened returnFocusTo
+            ( { model | state = Opened returnFocusTo }
             , Task.attempt Focused (focus firstId)
             )
 
         CloseModal ->
-            case model of
+            case model.state of
                 Opened returnFocusTo ->
-                    ( Closed, Task.attempt Focused (focus returnFocusTo) )
+                    ( { model | state = Closed }, Task.attempt Focused (focus returnFocusTo) )
 
                 Closed ->
-                    ( Closed, Cmd.none )
+                    ( { model | state = Closed }, Cmd.none )
 
         Focus id ->
             ( model, Task.attempt Focused (focus id) )
@@ -109,7 +116,6 @@ update msg model =
 {-| -}
 view :
     { overlayColor : String
-    , dismissOnEscAndOverlayClick : Bool
     , wrapMsg : Msg -> msg
     , modalAttributes : List (Attribute Never)
     , title : ( String, List (Attribute Never) )
@@ -118,7 +124,7 @@ view :
     -> Model
     -> Html msg
 view config model =
-    case model of
+    case model.state of
         Opened _ ->
             div
                 [ style "position" "fixed"
@@ -127,7 +133,7 @@ view config model =
                 , style "width" "100%"
                 , style "height" "100%"
                 ]
-                [ viewBackdrop config
+                [ viewBackdrop config model.dismissOnEscAndOverlayClick
                 , div (style "position" "relative" :: config.modalAttributes)
                     [ viewModal config ]
                 , Root.node "style" [] [ text "body {overflow: hidden;} " ]
@@ -138,9 +144,10 @@ view config model =
 
 
 viewBackdrop :
-    { a | dismissOnEscAndOverlayClick : Bool, wrapMsg : Msg -> msg, overlayColor : String }
+    { a | wrapMsg : Msg -> msg, overlayColor : String }
+    -> Bool
     -> Html msg
-viewBackdrop config =
+viewBackdrop config dismissOnEscAndOverlayClick =
     Root.div
         -- We use Root html here in order to allow clicking to exit out of
         -- the overlay. This behavior is available to non-mouse users as
@@ -151,7 +158,7 @@ viewBackdrop config =
          , style "height" "100%"
          , style "background-color" config.overlayColor
          ]
-            ++ (if config.dismissOnEscAndOverlayClick then
+            ++ (if dismissOnEscAndOverlayClick then
                     [ onClick (config.wrapMsg close) ]
 
                 else
@@ -247,9 +254,9 @@ lastId =
 {-| -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model of
-        Opened _ ->
+    case ( model.state, model.dismissOnEscAndOverlayClick ) of
+        ( Opened _, True ) ->
             Browser.Events.onKeyDown (Key.escape CloseModal)
 
-        Closed ->
+        _ ->
             Sub.none
