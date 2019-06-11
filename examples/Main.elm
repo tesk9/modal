@@ -4,6 +4,7 @@ import Browser exposing (element)
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (style)
+import Html.Events exposing (onClick)
 import Modal
 import Platform
 
@@ -82,9 +83,7 @@ view model =
                             div [ style "display" "flex", style "justify-content" "space-between" ]
                                 [ text "Modal content"
                                 , button
-                                    (Modal.closeOnClick
-                                        :: Modal.singleFocusableElement
-                                    )
+                                    (onClick Modal.close :: Modal.singleFocusableElement)
                                     [ text "Close Modal" ]
                                 ]
                         }
@@ -109,9 +108,7 @@ view model =
                             div [ style "display" "flex", style "justify-content" "space-between" ]
                                 [ text "Modal content"
                                 , button
-                                    (Modal.closeOnClick
-                                        :: Modal.firstFocusableElement
-                                    )
+                                    (onClick Modal.close :: Modal.firstFocusableElement)
                                     [ text "Close Modal" ]
                                 , a
                                     (Html.Attributes.href "#"
@@ -144,8 +141,7 @@ view model =
                                         :: Modal.firstFocusableElement
                                     )
                                     [ text "I'm a link!" ]
-                                , button [ Modal.closeOnClick ]
-                                    [ text "Close Modal" ]
+                                , button [ onClick Modal.close ] [ text "Close Modal" ]
                                 , a
                                     (Html.Attributes.href "#"
                                         :: Modal.lastFocusableElement

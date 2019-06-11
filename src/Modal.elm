@@ -1,8 +1,8 @@
 module Modal exposing
     ( Model, init, subscriptions
-    , Msg, update
+    , Msg, update, close
     , view
-    , openOnClick, closeOnClick
+    , openOnClick
     , firstFocusableElement, lastFocusableElement, singleFocusableElement
     )
 
@@ -10,15 +10,15 @@ module Modal exposing
 
     import Html exposing (..)
     import Html.Attributes exposing (style)
+    import Html.Events exposing (onClick)
     import Modal
 
+    view : Modal.State -> Html Modal.Msg
     view modalState =
         Modal.view
-            { launch =
-                button (Modal.openOnClick "intro-modal")
-                    [ text "Launch intro modal" ]
-            , overlayColor = "rgba(128, 0, 128, 0.7)"
+            { overlayColor = "rgba(128, 0, 128, 0.7)"
             , dismissOnEscAndOverlayClick = False
+            , wrapMsg = identity
             , modalContainer =
                 div
                     [ style "background-color" "white"
@@ -36,16 +36,16 @@ module Modal exposing
                     ]
                     [ text "Welcome to this modal! I'm so happy to have you here with me."
                     , button
-                        (Modal.closeOnClick :: Modal.singleFocusableElement)
+                        (onClick Modal.close :: Modal.singleFocusableElement)
                         [ text "Close intro modal" ]
                     ]
             }
             modalState
 
 @docs Model, init, subscriptions
-@docs Msg, update
+@docs Msg, update, close
 @docs view
-@docs openOnClick, closeOnClick
+@docs openOnClick
 @docs firstFocusableElement, lastFocusableElement, singleFocusableElement
 
 -}
@@ -134,7 +134,7 @@ view config model =
                  , style "background-color" config.overlayColor
                  ]
                     ++ (if config.dismissOnEscAndOverlayClick then
-                            [ Html.Attributes.map config.wrapMsg closeOnClick ]
+                            [ onClick (config.wrapMsg close) ]
 
                         else
                             []
@@ -188,9 +188,9 @@ openOnClick uniqueId =
 
 
 {-| -}
-closeOnClick : Attribute Msg
-closeOnClick =
-    onClick CloseModal
+close : Msg
+close =
+    CloseModal
 
 
 {-| -}
