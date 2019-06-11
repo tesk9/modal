@@ -1,6 +1,6 @@
 module Modal exposing
     ( Model, init, subscriptions
-    , Msg, update, close
+    , Msg, update, close, open
     , view
     , openOnClick
     , firstFocusableElement, lastFocusableElement, singleFocusableElement
@@ -41,7 +41,7 @@ module Modal exposing
             { dismissOnEscAndOverlayClick = False }
 
 @docs Model, init, subscriptions
-@docs Msg, update, close
+@docs Msg, update, close, open
 @docs view
 @docs openOnClick
 @docs firstFocusableElement, lastFocusableElement, singleFocusableElement
@@ -207,6 +207,13 @@ openOnClick uniqueId =
     [ id elementId
     , onClick (OpenModal elementId)
     ]
+
+
+{-| Pass the id of the element that should receive focus when the modal closes.
+-}
+open : String -> Msg
+open =
+    OpenModal
 
 
 {-| -}
