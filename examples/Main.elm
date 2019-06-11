@@ -70,14 +70,13 @@ view model =
         , case Dict.get 0 model of
             Just modal ->
                 section []
-                    [ h2 []
-                        [ text "Single focusable element" ]
+                    [ h2 [] [ text "Single focusable element" ]
+                    , button (Modal.openOnClick "0") [ text "Launch Modal" ]
                     , Modal.view
-                        { ifClosed =
-                            button (Modal.openOnClick "0")
-                                [ text "Launch Modal" ]
-                        , overlayColor = "rgba(128, 0, 128, 0.7)"
+                        { overlayColor = "rgba(128, 0, 128, 0.7)"
                         , modalContainer = viewModal
+                        , dismissOnEscAndOverlayClick = True
+                        , wrapMsg = identity
                         , title = ( "Single focusable element modal", [] )
                         , content =
                             div [ style "display" "flex", style "justify-content" "space-between" ]
@@ -99,12 +98,12 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Two focusable elements" ]
+                    , button (Modal.openOnClick "1") [ text "Launch Modal" ]
                     , Modal.view
-                        { ifClosed =
-                            button (Modal.openOnClick "1")
-                                [ text "Launch Modal" ]
-                        , overlayColor = "rgba(128, 0, 70, 0.7)"
+                        { overlayColor = "rgba(128, 0, 70, 0.7)"
                         , modalContainer = viewModal
+                        , dismissOnEscAndOverlayClick = True
+                        , wrapMsg = identity
                         , title = ( "Two focusable elements modal", [] )
                         , content =
                             div [ style "display" "flex", style "justify-content" "space-between" ]
@@ -131,12 +130,12 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Three focusable elements" ]
+                    , button (Modal.openOnClick "2") [ text "Launch Modal" ]
                     , Modal.view
-                        { ifClosed =
-                            button (Modal.openOnClick "2")
-                                [ text "Launch Modal" ]
-                        , overlayColor = "rgba(70, 0, 128, 0.7)"
+                        { overlayColor = "rgba(70, 0, 128, 0.7)"
                         , modalContainer = viewModal
+                        , dismissOnEscAndOverlayClick = True
+                        , wrapMsg = identity
                         , title = ( "Three focusable elements modal", [] )
                         , content =
                             div [ style "display" "flex", style "justify-content" "space-between" ]

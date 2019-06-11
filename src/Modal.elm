@@ -14,10 +14,11 @@ module Modal exposing
 
     view modalState =
         Modal.view
-            { ifClosed =
+            { launch =
                 button (Modal.openOnClick "intro-modal")
                     [ text "Launch intro modal" ]
             , overlayColor = "rgba(128, 0, 128, 0.7)"
+            , dismissOnEscAndOverlayClick = False
             , modalContainer =
                 div
                     [ style "background-color" "white"
@@ -56,6 +57,7 @@ import Accessibility.Role as Role
 import Browser
 import Browser.Dom exposing (focus)
 import Browser.Events
+import Html as Root
 import Html.Attributes exposing (id, style)
 import Html.Events exposing (onClick)
 import Task
@@ -107,8 +109,9 @@ update msg model =
 
 {-| -}
 view :
-    { ifClosed : Html msg
-    , overlayColor : String
+    { overlayColor : String
+    , dismissOnEscAndOverlayClick : Bool
+    , wrapMsg : Msg -> msg
     , modalContainer : List (Html msg) -> Html msg
     , title : ( String, List (Attribute Never) )
     , content : Html msg
@@ -118,19 +121,30 @@ view :
 view config model =
     case model of
         Opened _ ->
-            div
-                [ style "position" "fixed"
-                , style "top" "0"
-                , style "left" "0"
-                , style "width" "100%"
-                , style "height" "100%"
-                , style "background-color" config.overlayColor
-                ]
+            Root.div
+                -- We use Root html here in order to allow clicking to exit out of
+                -- the overlay. This behavior is available to non-mouse users as
+                -- well via the ESC key, so imo it's fine to have this div
+                -- be clickable but not focusable.
+                ([ style "position" "fixed"
+                 , style "top" "0"
+                 , style "left" "0"
+                 , style "width" "100%"
+                 , style "height" "100%"
+                 , style "background-color" config.overlayColor
+                 ]
+                    ++ (if config.dismissOnEscAndOverlayClick then
+                            [ Html.Attributes.map config.wrapMsg closeOnClick ]
+
+                        else
+                            []
+                       )
+                )
                 [ config.modalContainer [ viewModal config ]
                 ]
 
         Closed ->
-            config.ifClosed
+            text ""
 
 
 viewModal :
