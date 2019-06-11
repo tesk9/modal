@@ -155,6 +155,10 @@ view model =
 
             Nothing ->
                 text ""
+        , div
+            [ style "padding-top" "120vh"
+            ]
+            [ text "Scroll the background to find me" ]
         ]
 
 
