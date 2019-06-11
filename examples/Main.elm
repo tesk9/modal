@@ -75,7 +75,7 @@ view model =
                     , button (Modal.openOnClick "0") [ text "Launch Modal" ]
                     , Modal.view
                         { overlayColor = "rgba(128, 0, 128, 0.7)"
-                        , modalContainer = viewModal
+                        , modalAttributes = modalAttributes
                         , dismissOnEscAndOverlayClick = True
                         , wrapMsg = identity
                         , title = ( "Single focusable element modal", [] )
@@ -100,7 +100,7 @@ view model =
                     , button (Modal.openOnClick "1") [ text "Launch Modal" ]
                     , Modal.view
                         { overlayColor = "rgba(128, 0, 70, 0.7)"
-                        , modalContainer = viewModal
+                        , modalAttributes = modalAttributes
                         , dismissOnEscAndOverlayClick = True
                         , wrapMsg = identity
                         , title = ( "Two focusable elements modal", [] )
@@ -130,7 +130,7 @@ view model =
                     , button (Modal.openOnClick "2") [ text "Launch Modal" ]
                     , Modal.view
                         { overlayColor = "rgba(70, 0, 128, 0.7)"
-                        , modalContainer = viewModal
+                        , modalAttributes = modalAttributes
                         , dismissOnEscAndOverlayClick = True
                         , wrapMsg = identity
                         , title = ( "Three focusable elements modal", [] )
@@ -158,14 +158,13 @@ view model =
         ]
 
 
-viewModal : List (Html msg) -> Html msg
-viewModal =
-    div
-        [ style "background-color" "white"
-        , style "border-radius" "8px"
-        , style "border" "2px solid purple"
-        , style "margin" "40px auto"
-        , style "padding" "20px"
-        , style "max-width" "600px"
-        , style "min-height" "40vh"
-        ]
+modalAttributes : List (Html.Attribute msg)
+modalAttributes =
+    [ style "background-color" "white"
+    , style "border-radius" "8px"
+    , style "border" "2px solid purple"
+    , style "margin" "80px auto"
+    , style "padding" "20px"
+    , style "max-width" "600px"
+    , style "min-height" "40vh"
+    ]

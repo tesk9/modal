@@ -19,16 +19,15 @@ module Modal exposing
             { overlayColor = "rgba(128, 0, 128, 0.7)"
             , dismissOnEscAndOverlayClick = False
             , wrapMsg = identity
-            , modalContainer =
-                div
-                    [ style "background-color" "white"
-                    , style "border-radius" "4px"
-                    , style "border" "2px solid purple"
-                    , style "margin" "40px auto"
-                    , style "padding" "20px"
-                    , style "max-width" "600px"
-                    , style "min-height" "40vh"
-                    ]
+            , modalAttributes =
+                [ style "background-color" "white"
+                , style "border-radius" "4px"
+                , style "border" "2px solid purple"
+                , style "margin" "40px auto"
+                , style "padding" "20px"
+                , style "max-width" "600px"
+                , style "min-height" "40vh"
+                ]
             , title = ( "Intro Modal", [] )
             , content =
                 div
@@ -112,7 +111,7 @@ view :
     { overlayColor : String
     , dismissOnEscAndOverlayClick : Bool
     , wrapMsg : Msg -> msg
-    , modalContainer : List (Html msg) -> Html msg
+    , modalAttributes : List (Attribute Never)
     , title : ( String, List (Attribute Never) )
     , content : Html msg
     }
@@ -121,30 +120,44 @@ view :
 view config model =
     case model of
         Opened _ ->
-            Root.div
-                -- We use Root html here in order to allow clicking to exit out of
-                -- the overlay. This behavior is available to non-mouse users as
-                -- well via the ESC key, so imo it's fine to have this div
-                -- be clickable but not focusable.
-                ([ style "position" "fixed"
-                 , style "top" "0"
-                 , style "left" "0"
-                 , style "width" "100%"
-                 , style "height" "100%"
-                 , style "background-color" config.overlayColor
-                 ]
-                    ++ (if config.dismissOnEscAndOverlayClick then
-                            [ onClick (config.wrapMsg close) ]
-
-                        else
-                            []
-                       )
-                )
-                [ config.modalContainer [ viewModal config ]
+            div
+                [ style "position" "fixed"
+                , style "top" "0"
+                , style "left" "0"
+                , style "width" "100%"
+                , style "height" "100%"
+                ]
+                [ viewBackdrop config
+                , div (style "position" "relative" :: config.modalAttributes)
+                    [ viewModal config ]
                 ]
 
         Closed ->
             text ""
+
+
+viewBackdrop :
+    { a | dismissOnEscAndOverlayClick : Bool, wrapMsg : Msg -> msg, overlayColor : String }
+    -> Html msg
+viewBackdrop config =
+    Root.div
+        -- We use Root html here in order to allow clicking to exit out of
+        -- the overlay. This behavior is available to non-mouse users as
+        -- well via the ESC key, so imo it's fine to have this div
+        -- be clickable but not focusable.
+        ([ style "position" "absolute"
+         , style "width" "100%"
+         , style "height" "100%"
+         , style "background-color" config.overlayColor
+         ]
+            ++ (if config.dismissOnEscAndOverlayClick then
+                    [ onClick (config.wrapMsg close) ]
+
+                else
+                    []
+               )
+        )
+        []
 
 
 viewModal :
