@@ -61,6 +61,7 @@ import Html.Events exposing (onClick)
 import Task
 
 
+{-| -}
 type alias Model =
     { state : State
     , dismissOnEscAndOverlayClick : Bool
