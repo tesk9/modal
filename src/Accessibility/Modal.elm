@@ -194,14 +194,14 @@ modalTitleId =
 
 
 {-| -}
-openOnClick : String -> List (Attribute Msg)
-openOnClick uniqueId =
+openOnClick : (Msg -> msg) -> String -> List (Attribute msg)
+openOnClick wrapMsg uniqueId =
     let
         elementId =
             "modal__launch-element-" ++ uniqueId
     in
     [ id elementId
-    , onClick (OpenModal elementId)
+    , Html.Attributes.map wrapMsg (onClick (OpenModal elementId))
     ]
 
 

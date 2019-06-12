@@ -75,7 +75,7 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Single focusable element" ]
-                    , button (Modal.openOnClick "0") [ text "Launch Modal" ]
+                    , button (Modal.openOnClick identity "0") [ text "Launch Modal" ]
                     , Modal.view
                         { overlayColor = "rgba(128, 0, 128, 0.7)"
                         , modalAttributes = modalAttributes
@@ -99,7 +99,7 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Two focusable elements" ]
-                    , button (Modal.openOnClick "1") [ text "Launch Modal" ]
+                    , button (Modal.openOnClick identity "1") [ text "Launch Modal" ]
                     , Modal.view
                         { overlayColor = "rgba(128, 0, 70, 0.7)"
                         , modalAttributes = modalAttributes
@@ -128,7 +128,7 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Three focusable elements" ]
-                    , button (Modal.openOnClick "2") [ text "Launch Modal" ]
+                    , button (Modal.openOnClick identity "2") [ text "Launch Modal" ]
                     , Modal.view
                         { overlayColor = "rgba(70, 0, 128, 0.7)"
                         , modalAttributes = modalAttributes
