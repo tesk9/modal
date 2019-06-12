@@ -105,7 +105,7 @@ update { dismissOnEscAndOverlayClick } msg model =
                     closeModal returnFocusTo
 
                 _ ->
-                    ( Closed, Cmd.none )
+                    ( model, Cmd.none )
 
         Focus id ->
             ( model, Task.attempt Focused (focus id) )
