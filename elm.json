@@ -5,7 +5,7 @@
     "license": "BSD-3-Clause",
     "version": "4.1.0",
     "exposed-modules": [
-        "Modal"
+        "Accessibility.Modal"
     ],
     "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {

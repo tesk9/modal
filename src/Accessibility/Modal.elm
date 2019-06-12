@@ -1,4 +1,4 @@
-module Modal exposing
+module Accessibility.Modal exposing
     ( Model, init, subscriptions
     , Msg, update, close, open
     , view
@@ -8,10 +8,10 @@ module Modal exposing
 
 {-|
 
+    import Accessibility.Modal as Modal
     import Html exposing (..)
     import Html.Attributes exposing (style)
     import Html.Events exposing (onClick)
-    import Modal
 
     view : Html Modal.Msg
     view =

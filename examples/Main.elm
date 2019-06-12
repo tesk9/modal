@@ -1,11 +1,11 @@
 module Main exposing (main)
 
+import Accessibility.Modal as Modal
 import Browser exposing (element)
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
-import Modal
 import Platform
 
 
