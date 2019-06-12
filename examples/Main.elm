@@ -22,9 +22,9 @@ main =
 init : {} -> ( Model, Cmd Msg )
 init flags =
     ( Dict.fromList
-        [ ( 0, Modal.init { dismissOnEscAndOverlayClick = True } )
-        , ( 1, Modal.init { dismissOnEscAndOverlayClick = True } )
-        , ( 2, Modal.init { dismissOnEscAndOverlayClick = True } )
+        [ ( 0, Modal.init )
+        , ( 1, Modal.init )
+        , ( 2, Modal.init )
         ]
     , Cmd.none
     )
@@ -46,7 +46,10 @@ update msg model =
                 Just modal ->
                     let
                         ( newModalState, modalCmd ) =
-                            Modal.update modalMsg modal
+                            Modal.update
+                                { dismissOnEscAndOverlayClick = True }
+                                modalMsg
+                                modal
                     in
                     ( Dict.insert modalId newModalState model
                     , Cmd.map (ModalMsg modalId) modalCmd

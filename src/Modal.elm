@@ -13,8 +13,8 @@ module Modal exposing
     import Html.Events exposing (onClick)
     import Modal
 
-    view : Modal.State -> Html Modal.Msg
-    view modalState =
+    view : Html Modal.Msg
+    view =
         Modal.view
             { overlayColor = "rgba(128, 0, 128, 0.7)"
             , wrapMsg = identity
@@ -38,7 +38,6 @@ module Modal exposing
                         [ text "Close intro modal" ]
                     ]
             }
-            { dismissOnEscAndOverlayClick = False }
 
 @docs Model, init, subscriptions
 @docs Msg, update, close, open
@@ -62,50 +61,54 @@ import Task
 
 
 {-| -}
-type alias Model =
-    { state : State
-    , dismissOnEscAndOverlayClick : Bool
-    }
-
-
-{-| -}
-type State
+type Model
     = Opened String
     | Closed
 
 
 {-| -}
-init : { dismissOnEscAndOverlayClick : Bool } -> Model
-init { dismissOnEscAndOverlayClick } =
-    { state = Closed
-    , dismissOnEscAndOverlayClick = dismissOnEscAndOverlayClick
-    }
+init : Model
+init =
+    Closed
+
+
+type By
+    = EscapeKey
+    | OverlayClick
+    | Other
 
 
 {-| -}
 type Msg
     = OpenModal String
-    | CloseModal
+    | CloseModal By
     | Focus String
     | Focused (Result Browser.Dom.Error ())
 
 
 {-| -}
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : { dismissOnEscAndOverlayClick : Bool } -> Msg -> Model -> ( Model, Cmd Msg )
+update { dismissOnEscAndOverlayClick } msg model =
     case msg of
         OpenModal returnFocusTo ->
-            ( { model | state = Opened returnFocusTo }
+            ( Opened returnFocusTo
             , Task.attempt Focused (focus firstId)
             )
 
-        CloseModal ->
-            case model.state of
-                Opened returnFocusTo ->
-                    ( { model | state = Closed }, Task.attempt Focused (focus returnFocusTo) )
+        CloseModal by ->
+            let
+                closeModal returnFocusTo =
+                    ( Closed, Task.attempt Focused (focus returnFocusTo) )
+            in
+            case ( model, by, dismissOnEscAndOverlayClick ) of
+                ( Opened returnFocusTo, _, True ) ->
+                    closeModal returnFocusTo
 
-                Closed ->
-                    ( { model | state = Closed }, Cmd.none )
+                ( Opened returnFocusTo, Other, False ) ->
+                    closeModal returnFocusTo
+
+                _ ->
+                    ( Closed, Cmd.none )
 
         Focus id ->
             ( model, Task.attempt Focused (focus id) )
@@ -125,7 +128,7 @@ view :
     -> Model
     -> Html msg
 view config model =
-    case model.state of
+    case model of
         Opened _ ->
             div
                 [ style "position" "fixed"
@@ -134,7 +137,7 @@ view config model =
                 , style "width" "100%"
                 , style "height" "100%"
                 ]
-                [ viewBackdrop config model.dismissOnEscAndOverlayClick
+                [ viewBackdrop config
                 , div (style "position" "relative" :: config.modalAttributes)
                     [ viewModal config ]
                 , Root.node "style" [] [ text "body {overflow: hidden;} " ]
@@ -146,26 +149,19 @@ view config model =
 
 viewBackdrop :
     { a | wrapMsg : Msg -> msg, overlayColor : String }
-    -> Bool
     -> Html msg
-viewBackdrop config dismissOnEscAndOverlayClick =
+viewBackdrop config =
     Root.div
         -- We use Root html here in order to allow clicking to exit out of
         -- the overlay. This behavior is available to non-mouse users as
         -- well via the ESC key, so imo it's fine to have this div
         -- be clickable but not focusable.
-        ([ style "position" "absolute"
-         , style "width" "100%"
-         , style "height" "100%"
-         , style "background-color" config.overlayColor
-         ]
-            ++ (if dismissOnEscAndOverlayClick then
-                    [ onClick (config.wrapMsg close) ]
-
-                else
-                    []
-               )
-        )
+        [ style "position" "absolute"
+        , style "width" "100%"
+        , style "height" "100%"
+        , style "background-color" config.overlayColor
+        , onClick (config.wrapMsg (CloseModal OverlayClick))
+        ]
         []
 
 
@@ -219,7 +215,7 @@ open =
 {-| -}
 close : Msg
 close =
-    CloseModal
+    CloseModal Other
 
 
 {-| -}
@@ -262,9 +258,9 @@ lastId =
 {-| -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case ( model.state, model.dismissOnEscAndOverlayClick ) of
-        ( Opened _, True ) ->
-            Browser.Events.onKeyDown (Key.escape CloseModal)
+    case model of
+        Opened _ ->
+            Browser.Events.onKeyDown (Key.escape (CloseModal EscapeKey))
 
-        _ ->
+        Closed ->
             Sub.none
