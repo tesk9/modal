@@ -82,12 +82,13 @@ view model =
                         , wrapMsg = identity
                         , title = ( "Single focusable element modal", [] )
                         , content =
-                            div [ style "display" "flex", style "justify-content" "space-between" ]
-                                [ text "Modal content"
-                                , button
-                                    (onClick Modal.close :: Modal.singleFocusableElement)
-                                    [ text "Close Modal" ]
-                                ]
+                            \{ onlyFocusableElement } ->
+                                div [ style "display" "flex", style "justify-content" "space-between" ]
+                                    [ text "Modal content"
+                                    , button
+                                        (onClick Modal.close :: onlyFocusableElement)
+                                        [ text "Close Modal" ]
+                                    ]
                         }
                         modal
                     ]
@@ -106,17 +107,16 @@ view model =
                         , wrapMsg = identity
                         , title = ( "Two focusable elements modal", [] )
                         , content =
-                            div [ style "display" "flex", style "justify-content" "space-between" ]
-                                [ text "Modal content"
-                                , button
-                                    (onClick Modal.close :: Modal.firstFocusableElement)
-                                    [ text "Close Modal" ]
-                                , a
-                                    (Html.Attributes.href "#"
-                                        :: Modal.lastFocusableElement
-                                    )
-                                    [ text "I'm a link!" ]
-                                ]
+                            \{ firstFocusableElement, lastFocusableElement } ->
+                                div [ style "display" "flex", style "justify-content" "space-between" ]
+                                    [ text "Modal content"
+                                    , button
+                                        (onClick Modal.close :: firstFocusableElement)
+                                        [ text "Close Modal" ]
+                                    , a
+                                        (Html.Attributes.href "#" :: lastFocusableElement)
+                                        [ text "I'm a link!" ]
+                                    ]
                         }
                         modal
                     ]
@@ -135,19 +135,16 @@ view model =
                         , wrapMsg = identity
                         , title = ( "Three focusable elements modal", [] )
                         , content =
-                            div [ style "display" "flex", style "justify-content" "space-between" ]
-                                [ a
-                                    (Html.Attributes.href "#"
-                                        :: Modal.firstFocusableElement
-                                    )
-                                    [ text "I'm a link!" ]
-                                , button [ onClick Modal.close ] [ text "Close Modal" ]
-                                , a
-                                    (Html.Attributes.href "#"
-                                        :: Modal.lastFocusableElement
-                                    )
-                                    [ text "I'm a link!" ]
-                                ]
+                            \{ firstFocusableElement, lastFocusableElement } ->
+                                div [ style "display" "flex", style "justify-content" "space-between" ]
+                                    [ a
+                                        (Html.Attributes.href "#" :: firstFocusableElement)
+                                        [ text "I'm a link!" ]
+                                    , button [ onClick Modal.close ] [ text "Close Modal" ]
+                                    , a
+                                        (Html.Attributes.href "#" :: lastFocusableElement)
+                                        [ text "I'm a link!" ]
+                                    ]
                         }
                         modal
                     ]

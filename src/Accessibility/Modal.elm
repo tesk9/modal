@@ -1,9 +1,7 @@
 module Accessibility.Modal exposing
     ( Model, init, subscriptions
     , Msg, update, close, open
-    , view
-    , openOnClick
-    , firstFocusableElement, lastFocusableElement, singleFocusableElement
+    , view, openOnClick
     )
 
 {-|
@@ -29,21 +27,20 @@ module Accessibility.Modal exposing
                 ]
             , title = ( "Intro Modal", [] )
             , content =
-                div
-                    [ style "display" "flex"
-                    ]
-                    [ text "Welcome to this modal! I'm so happy to have you here with me."
-                    , button
-                        (onClick Modal.close :: Modal.singleFocusableElement)
-                        [ text "Close intro modal" ]
-                    ]
+                \{ onlyFocusableElement } ->
+                    div
+                        [ style "display" "flex"
+                        ]
+                        [ text "Welcome to this modal! I'm so happy to have you here with me."
+                        , button
+                            (onClick Modal.close :: onlyFocusableElement)
+                            [ text "Close intro modal" ]
+                        ]
             }
 
 @docs Model, init, subscriptions
 @docs Msg, update, close, open
-@docs view
-@docs openOnClick
-@docs firstFocusableElement, lastFocusableElement, singleFocusableElement
+@docs view, openOnClick
 
 -}
 
@@ -123,7 +120,12 @@ view :
     , wrapMsg : Msg -> msg
     , modalAttributes : List (Attribute Never)
     , title : ( String, List (Attribute Never) )
-    , content : Html msg
+    , content :
+        { onlyFocusableElement : List (Attribute msg)
+        , firstFocusableElement : List (Attribute msg)
+        , lastFocusableElement : List (Attribute msg)
+        }
+        -> Html msg
     }
     -> Model
     -> Html msg
@@ -168,7 +170,13 @@ viewBackdrop config =
 viewModal :
     { a
         | title : ( String, List (Attribute Never) )
-        , content : Html msg
+        , wrapMsg : Msg -> msg
+        , content :
+            { onlyFocusableElement : List (Attribute msg)
+            , firstFocusableElement : List (Attribute msg)
+            , lastFocusableElement : List (Attribute msg)
+            }
+            -> Html msg
     }
     -> Html msg
 viewModal config =
@@ -178,7 +186,41 @@ viewModal config =
         ]
         [ map never (viewTitle config.title)
         , config.content
+            { onlyFocusableElement =
+                [ Key.onKeyDown
+                    [ Key.tabBack (Focus firstId)
+                    , Key.tab (Focus firstId)
+                    ]
+                , id firstId
+                ]
+                    |> List.map (Html.Attributes.map config.wrapMsg)
+            , firstFocusableElement =
+                [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
+                , id firstId
+                ]
+                    |> List.map (Html.Attributes.map config.wrapMsg)
+            , lastFocusableElement =
+                [ Key.onKeyDown [ Key.tab (Focus firstId) ]
+                , id lastId
+                ]
+                    |> List.map (Html.Attributes.map config.wrapMsg)
+            }
         ]
+
+
+modalTitleId : String
+modalTitleId =
+    "modal__title"
+
+
+firstId : String
+firstId =
+    "modal__first-focusable-element"
+
+
+lastId : String
+lastId =
+    "modal__last-focusable-element"
 
 
 viewTitle : ( String, List (Attribute Never) ) -> Html Never
@@ -186,11 +228,6 @@ viewTitle ( title, titleAttrs ) =
     h1
         (id modalTitleId :: titleAttrs)
         [ text title ]
-
-
-modalTitleId : String
-modalTitleId =
-    "modal__title"
 
 
 {-| -}
@@ -216,43 +253,6 @@ open =
 close : Msg
 close =
     CloseModal Other
-
-
-{-| -}
-singleFocusableElement : List (Attribute Msg)
-singleFocusableElement =
-    [ Key.onKeyDown
-        [ Key.tabBack (Focus firstId)
-        , Key.tab (Focus firstId)
-        ]
-    , id firstId
-    ]
-
-
-{-| -}
-firstFocusableElement : List (Attribute Msg)
-firstFocusableElement =
-    [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
-    , id firstId
-    ]
-
-
-{-| -}
-lastFocusableElement : List (Attribute Msg)
-lastFocusableElement =
-    [ Key.onKeyDown [ Key.tab (Focus firstId) ]
-    , id lastId
-    ]
-
-
-firstId : String
-firstId =
-    "modal__first-focusable-element"
-
-
-lastId : String
-lastId =
-    "modal__last-focusable-element"
 
 
 {-| -}
