@@ -79,7 +79,7 @@ view model =
                     , viewModalOpener 0
                     , Modal.view (ModalMsg 0)
                         "Single focusable element modal"
-                        [ Modal.overlayColor "rgba(128, 0, 128, 0.7)"
+                        [ Modal.overlayColor (rgba 128 0 128 0.7)
                         , Modal.onlyFocusableElementView
                             (\onlyFocusableElement ->
                                 div [ css [ displayFlex, justifyContent spaceBetween ] ]
@@ -104,8 +104,7 @@ view model =
                     , viewModalOpener 1
                     , Modal.view (ModalMsg 1)
                         "Two focusable elements modal"
-                        [ Modal.overlayColor "rgba(128, 0, 70, 0.7)"
-                        , Modal.multipleFocusableElementView
+                        [ Modal.multipleFocusableElementView
                             (\{ firstFocusableElement, lastFocusableElement } ->
                                 div [ css [ displayFlex, justifyContent spaceBetween ] ]
                                     [ text "Modal content"
@@ -130,7 +129,7 @@ view model =
                     , viewModalOpener 2
                     , Modal.view (ModalMsg 2)
                         "Three focusable elements modal"
-                        [ Modal.overlayColor "rgba(70, 0, 128, 0.7)"
+                        [ Modal.overlayColor (rgba 70 0 128 0.7)
                         , Modal.autofocusOnLastElement
                         , Modal.multipleFocusableElementView
                             (\{ firstFocusableElement, lastFocusableElement } ->

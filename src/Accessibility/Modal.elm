@@ -44,10 +44,11 @@ import Accessibility.Styled.Aria as Aria
 import Accessibility.Styled.Key as Key
 import Accessibility.Styled.Role as Role
 import Browser
-import Browser.Dom exposing (focus)
+import Browser.Dom as Dom
 import Browser.Events
+import Css exposing (..)
 import Html.Styled as Root
-import Html.Styled.Attributes as Attributes exposing (id, style)
+import Html.Styled.Attributes as Attributes exposing (css, id)
 import Html.Styled.Events exposing (onClick)
 import Task
 
@@ -75,7 +76,7 @@ type Msg
     = OpenModal String
     | CloseModal By
     | Focus String
-    | Focused (Result Browser.Dom.Error ())
+    | Focused (Result Dom.Error ())
 
 
 {-| -}
@@ -84,15 +85,15 @@ update { dismissOnEscAndOverlayClick } msg model =
     case msg of
         OpenModal returnFocusTo ->
             ( Opened returnFocusTo
-            , focus autofocusId
-                |> Task.onError (\_ -> focus firstId)
+            , Dom.focus autofocusId
+                |> Task.onError (\_ -> Dom.focus firstId)
                 |> Task.attempt Focused
             )
 
         CloseModal by ->
             let
                 closeModal returnFocusTo =
-                    ( Closed, Task.attempt Focused (focus returnFocusTo) )
+                    ( Closed, Task.attempt Focused (Dom.focus returnFocusTo) )
             in
             case ( model, by, dismissOnEscAndOverlayClick ) of
                 ( Opened returnFocusTo, _, True ) ->
@@ -105,7 +106,7 @@ update { dismissOnEscAndOverlayClick } msg model =
                     ( model, Cmd.none )
 
         Focus id ->
-            ( model, Task.attempt Focused (focus id) )
+            ( model, Task.attempt Focused (Dom.focus id) )
 
         Focused _ ->
             ( model, Cmd.none )
@@ -118,9 +119,9 @@ type Autofocus
 
 type Config msg
     = Config
-        { overlayColor : String
+        { overlayColor : Color
         , wrapMsg : Msg -> msg
-        , modalAttributes : List (Attribute Never)
+        , modalStyle : Style
         , title : ( String, List (Attribute Never) )
         , autofocusOn : Autofocus
         , content :
@@ -136,17 +137,18 @@ type Config msg
 defaults : (Msg -> msg) -> String -> Config msg
 defaults wrapMsg t =
     Config
-        { overlayColor = "rgba(128, 0, 70, 0.7)"
+        { overlayColor = rgba 128 0 70 0.7
         , wrapMsg = wrapMsg
-        , modalAttributes =
-            [ style "background-color" "white"
-            , style "border-radius" "8px"
-            , style "border" "2px solid purple"
-            , style "margin" "80px auto"
-            , style "padding" "20px"
-            , style "max-width" "600px"
-            , style "min-height" "40vh"
-            ]
+        , modalStyle =
+            batch
+                [ backgroundColor (rgb 255 255 255)
+                , borderRadius (px 8)
+                , border3 (px 2) solid (rgb 127 0 127)
+                , margin2 (px 80) auto
+                , padding (px 20)
+                , maxWidth (px 600)
+                , minHeight (vh 40)
+                ]
         , title = ( t, [] )
         , autofocusOn = Default
         , content = \_ -> text ""
@@ -154,7 +156,7 @@ defaults wrapMsg t =
 
 
 {-| -}
-overlayColor : String -> Config msg -> Config msg
+overlayColor : Color -> Config msg -> Config msg
 overlayColor color (Config config) =
     Config { config | overlayColor = color }
 
@@ -172,9 +174,9 @@ titleStyles styles (Config config) =
 
 
 {-| -}
-custom : List (Attribute Never) -> Config msg -> Config msg
+custom : List Style -> Config msg -> Config msg
 custom styles (Config config) =
-    Config { config | modalAttributes = styles }
+    Config { config | modalStyle = batch styles }
 
 
 {-| -}
@@ -227,14 +229,16 @@ view wrapMsg ti attributes model =
     case model of
         Opened _ ->
             div
-                [ style "position" "fixed"
-                , style "top" "0"
-                , style "left" "0"
-                , style "width" "100%"
-                , style "height" "100%"
+                [ css
+                    [ position fixed
+                    , top zero
+                    , left zero
+                    , width (pct 100)
+                    , height (pct 100)
+                    ]
                 ]
                 [ viewBackdrop config
-                , div (style "position" "relative" :: config.modalAttributes)
+                , div [ css [ position relative, config.modalStyle ] ]
                     [ viewModal config ]
                 , Root.node "style" [] [ Root.text "body {overflow: hidden;} " ]
                 ]
@@ -244,7 +248,7 @@ view wrapMsg ti attributes model =
 
 
 viewBackdrop :
-    { a | wrapMsg : Msg -> msg, overlayColor : String }
+    { a | wrapMsg : Msg -> msg, overlayColor : Color }
     -> Html msg
 viewBackdrop config =
     Root.div
@@ -252,10 +256,12 @@ viewBackdrop config =
         -- the overlay. This behavior is available to non-mouse users as
         -- well via the ESC key, so imo it's fine to have this div
         -- be clickable but not focusable.
-        [ style "position" "absolute"
-        , style "width" "100%"
-        , style "height" "100%"
-        , style "background-color" config.overlayColor
+        [ css
+            [ position absolute
+            , width (pct 100)
+            , height (pct 100)
+            , backgroundColor config.overlayColor
+            ]
         , onClick (config.wrapMsg (CloseModal OverlayClick))
         ]
         []
