@@ -126,7 +126,7 @@ view :
         { onlyFocusableElement : List (Attribute msg)
         , firstFocusableElement : List (Attribute msg)
         , lastFocusableElement : List (Attribute msg)
-        , autofocusOn : Attribute Never
+        , autofocusOn : Attribute msg
         }
         -> Html msg
     }
@@ -178,7 +178,7 @@ viewModal :
             { onlyFocusableElement : List (Attribute msg)
             , firstFocusableElement : List (Attribute msg)
             , lastFocusableElement : List (Attribute msg)
-            , autofocusOn : Attribute Never
+            , autofocusOn : Attribute msg
             }
             -> Html msg
     }
