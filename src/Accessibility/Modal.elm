@@ -1,8 +1,10 @@
 module Accessibility.Modal exposing
     ( Model, init, subscriptions
-    , Msg, update, close, open
+    , update, Msg, close, open
     , view
-    , Autofocus(..), autofocusOnLastElement, custom, multipleFocusableElementView, onlyFocusableElementView, overlayColor, title, titleStyles
+    , multipleFocusableElementView, onlyFocusableElementView
+    , autofocusOnLastElement
+    , overlayColor, custom, titleStyles
     )
 
 {-|
@@ -29,8 +31,12 @@ module Accessibility.Modal exposing
             modal
 
 @docs Model, init, subscriptions
-@docs Msg, update, close, open
+@docs update, Msg, close, open
 @docs view
+
+@docs multipleFocusableElementView, onlyFocusableElementView
+@docs autofocusOnLastElement
+@docs overlayColor, custom, titleStyles
 
 -}
 
