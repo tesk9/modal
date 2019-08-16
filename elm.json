@@ -3,7 +3,7 @@
     "name": "tesk9/modal",
     "summary": "Accessible modal component",
     "license": "BSD-3-Clause",
-    "version": "6.0.0",
+    "version": "7.0.0",
     "exposed-modules": [
         "Accessibility.Modal"
     ],
