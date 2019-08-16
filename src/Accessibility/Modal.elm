@@ -145,7 +145,15 @@ defaults wrapMsg t =
     Config
         { overlayColor = "rgba(128, 0, 70, 0.7)"
         , wrapMsg = wrapMsg
-        , modalAttributes = []
+        , modalAttributes =
+            [ style "background-color" "white"
+            , style "border-radius" "8px"
+            , style "border" "2px solid purple"
+            , style "margin" "80px auto"
+            , style "padding" "20px"
+            , style "max-width" "600px"
+            , style "min-height" "40vh"
+            ]
         , title = ( t, [] )
         , autofocusOn = Default
         , content = \_ -> text ""

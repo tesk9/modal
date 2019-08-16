@@ -79,7 +79,6 @@ view model =
                     , Modal.view identity
                         "Single focusable element modal"
                         [ Modal.overlayColor "rgba(128, 0, 128, 0.7)"
-                        , Modal.custom modalAttributes
                         , Modal.onlyFocusableElementView
                             (\onlyFocusableElement ->
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
@@ -104,7 +103,6 @@ view model =
                     , Modal.view identity
                         "Two focusable elements modal"
                         [ Modal.overlayColor "rgba(128, 0, 70, 0.7)"
-                        , Modal.custom modalAttributes
                         , Modal.multipleFocusableElementView
                             (\{ firstFocusableElement, lastFocusableElement } ->
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
@@ -132,7 +130,6 @@ view model =
                     , Modal.view identity
                         "Three focusable elements modal"
                         [ Modal.overlayColor "rgba(70, 0, 128, 0.7)"
-                        , Modal.custom modalAttributes
                         , Modal.autofocusOnLastElement
                         , Modal.multipleFocusableElementView
                             (\{ firstFocusableElement, lastFocusableElement } ->
@@ -158,15 +155,3 @@ view model =
             ]
             [ text "Scroll the background to find me" ]
         ]
-
-
-modalAttributes : List (Html.Attribute msg)
-modalAttributes =
-    [ style "background-color" "white"
-    , style "border-radius" "8px"
-    , style "border" "2px solid purple"
-    , style "margin" "80px auto"
-    , style "padding" "20px"
-    , style "max-width" "600px"
-    , style "min-height" "40vh"
-    ]
