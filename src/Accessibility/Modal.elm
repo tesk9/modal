@@ -2,7 +2,7 @@ module Accessibility.Modal exposing
     ( Model, init, subscriptions
     , Msg, update, close, open
     , view, openOnClick
-    , Autofocus(..)
+    , Autofocus(..), autofocusOnLastElement, custom, multipleFocusableElementView, onlyFocusableElementView, overlayColor, title, titleStyles
     )
 
 {-|
@@ -123,24 +123,106 @@ type Autofocus
     | Last
 
 
+type Config msg
+    = Config
+        { overlayColor : String
+        , wrapMsg : Msg -> msg
+        , modalAttributes : List (Attribute Never)
+        , title : ( String, List (Attribute Never) )
+        , autofocusOn : Autofocus
+        , content :
+            { onlyFocusableElement : List (Attribute msg)
+            , firstFocusableElement : List (Attribute msg)
+            , lastFocusableElement : List (Attribute msg)
+            , autofocusOn : Attribute msg
+            }
+            -> Html msg
+        }
+
+
+defaults : (Msg -> msg) -> String -> Config msg
+defaults wrapMsg t =
+    Config
+        { overlayColor = "rgba(128, 0, 70, 0.7)"
+        , wrapMsg = wrapMsg
+        , modalAttributes = []
+        , title = ( t, [] )
+        , autofocusOn = Default
+        , content = \_ -> text ""
+        }
+
+
+{-| -}
+overlayColor : String -> Config msg -> Config msg
+overlayColor color (Config config) =
+    Config { config | overlayColor = color }
+
+
+{-| -}
+title : String -> Config msg -> Config msg
+title t (Config config) =
+    Config { config | title = Tuple.mapFirst (\_ -> t) config.title }
+
+
+{-| -}
+titleStyles : List (Attribute Never) -> Config msg -> Config msg
+titleStyles styles (Config config) =
+    Config { config | title = Tuple.mapSecond (\_ -> styles) config.title }
+
+
+{-| -}
+custom : List (Attribute Never) -> Config msg -> Config msg
+custom styles (Config config) =
+    Config { config | modalAttributes = styles }
+
+
+{-| -}
+autofocusOnLastElement : Config msg -> Config msg
+autofocusOnLastElement (Config config) =
+    Config { config | autofocusOn = Last }
+
+
+{-| -}
+onlyFocusableElementView : (List (Attribute msg) -> Html msg) -> Config msg -> Config msg
+onlyFocusableElementView v (Config config) =
+    Config { config | content = \{ onlyFocusableElement } -> v onlyFocusableElement }
+
+
+{-| -}
+multipleFocusableElementView :
+    ({ firstFocusableElement : List (Attribute msg)
+     , lastFocusableElement : List (Attribute msg)
+     , autofocusElement : Attribute msg
+     }
+     -> Html msg
+    )
+    -> Config msg
+    -> Config msg
+multipleFocusableElementView v (Config config) =
+    Config
+        { config
+            | content =
+                \{ firstFocusableElement, lastFocusableElement, autofocusOn } ->
+                    v
+                        { firstFocusableElement = firstFocusableElement
+                        , lastFocusableElement = lastFocusableElement
+                        , autofocusElement = autofocusOn
+                        }
+        }
+
+
 {-| -}
 view :
-    { overlayColor : String
-    , wrapMsg : Msg -> msg
-    , modalAttributes : List (Attribute Never)
-    , title : ( String, List (Attribute Never) )
-    , autofocusOn : Autofocus
-    , content :
-        { onlyFocusableElement : List (Attribute msg)
-        , firstFocusableElement : List (Attribute msg)
-        , lastFocusableElement : List (Attribute msg)
-        , autofocusOn : Attribute msg
-        }
-        -> Html msg
-    }
+    (Msg -> msg)
+    -> String
+    -> List (Config msg -> Config msg)
     -> Model
     -> Html msg
-view config model =
+view wrapMsg ti attributes model =
+    let
+        (Config config) =
+            List.foldl (\f acc -> f acc) (defaults wrapMsg ti) attributes
+    in
     case model of
         Opened _ ->
             div
@@ -272,10 +354,10 @@ autofocusId =
 
 
 viewTitle : ( String, List (Attribute Never) ) -> Html Never
-viewTitle ( title, titleAttrs ) =
+viewTitle ( t, titleAttrs ) =
     h1
         (id modalTitleId :: titleAttrs)
-        [ text title ]
+        [ text t ]
 
 
 {-| -}

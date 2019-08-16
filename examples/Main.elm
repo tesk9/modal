@@ -76,21 +76,20 @@ view model =
                 section []
                     [ h2 [] [ text "Single focusable element" ]
                     , button (Modal.openOnClick identity "0") [ text "Launch Modal" ]
-                    , Modal.view
-                        { overlayColor = "rgba(128, 0, 128, 0.7)"
-                        , modalAttributes = modalAttributes
-                        , wrapMsg = identity
-                        , autofocusOn = Modal.Default
-                        , title = ( "Single focusable element modal", [] )
-                        , content =
-                            \{ onlyFocusableElement } ->
+                    , Modal.view identity
+                        "Single focusable element modal"
+                        [ Modal.overlayColor "rgba(128, 0, 128, 0.7)"
+                        , Modal.custom modalAttributes
+                        , Modal.onlyFocusableElementView
+                            (\onlyFocusableElement ->
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
                                     [ text "Modal content"
                                     , button
                                         (onClick Modal.close :: onlyFocusableElement)
                                         [ text "Close Modal" ]
                                     ]
-                        }
+                            )
+                        ]
                         modal
                     ]
                     |> Html.map (ModalMsg 0)
@@ -102,14 +101,12 @@ view model =
                 section []
                     [ h2 [] [ text "Two focusable elements" ]
                     , button (Modal.openOnClick identity "1") [ text "Launch Modal" ]
-                    , Modal.view
-                        { overlayColor = "rgba(128, 0, 70, 0.7)"
-                        , modalAttributes = modalAttributes
-                        , wrapMsg = identity
-                        , autofocusOn = Modal.Default
-                        , title = ( "Two focusable elements modal", [] )
-                        , content =
-                            \{ firstFocusableElement, lastFocusableElement } ->
+                    , Modal.view identity
+                        "Two focusable elements modal"
+                        [ Modal.overlayColor "rgba(128, 0, 70, 0.7)"
+                        , Modal.custom modalAttributes
+                        , Modal.multipleFocusableElementView
+                            (\{ firstFocusableElement, lastFocusableElement } ->
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
                                     [ text "Modal content"
                                     , button
@@ -119,7 +116,8 @@ view model =
                                         (Html.Attributes.href "#" :: lastFocusableElement)
                                         [ text "I'm a link!" ]
                                     ]
-                        }
+                            )
+                        ]
                         modal
                     ]
                     |> Html.map (ModalMsg 1)
@@ -131,14 +129,13 @@ view model =
                 section []
                     [ h2 [] [ text "Three focusable elements" ]
                     , button (Modal.openOnClick identity "2") [ text "Launch Modal" ]
-                    , Modal.view
-                        { overlayColor = "rgba(70, 0, 128, 0.7)"
-                        , modalAttributes = modalAttributes
-                        , wrapMsg = identity
-                        , autofocusOn = Modal.Last
-                        , title = ( "Three focusable elements modal", [] )
-                        , content =
-                            \{ firstFocusableElement, lastFocusableElement, autofocusOn } ->
+                    , Modal.view identity
+                        "Three focusable elements modal"
+                        [ Modal.overlayColor "rgba(70, 0, 128, 0.7)"
+                        , Modal.custom modalAttributes
+                        , Modal.autofocusOnLastElement
+                        , Modal.multipleFocusableElementView
+                            (\{ firstFocusableElement, lastFocusableElement } ->
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
                                     [ a
                                         (Html.Attributes.href "#" :: firstFocusableElement)
@@ -148,7 +145,8 @@ view model =
                                         (Html.Attributes.href "#" :: lastFocusableElement)
                                         [ text "I'm a link!" ]
                                     ]
-                        }
+                            )
+                        ]
                         modal
                     ]
                     |> Html.map (ModalMsg 2)
