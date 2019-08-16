@@ -89,7 +89,9 @@ update { dismissOnEscAndOverlayClick } msg model =
     case msg of
         OpenModal returnFocusTo ->
             ( Opened returnFocusTo
-            , Task.attempt Focused (focus firstId)
+            , focus autofocusId
+                |> Task.onError (\_ -> focus firstId)
+                |> Task.attempt Focused
             )
 
         CloseModal by ->
@@ -124,6 +126,7 @@ view :
         { onlyFocusableElement : List (Attribute msg)
         , firstFocusableElement : List (Attribute msg)
         , lastFocusableElement : List (Attribute msg)
+        , autofocusOn : Attribute Never
         }
         -> Html msg
     }
@@ -175,6 +178,7 @@ viewModal :
             { onlyFocusableElement : List (Attribute msg)
             , firstFocusableElement : List (Attribute msg)
             , lastFocusableElement : List (Attribute msg)
+            , autofocusOn : Attribute Never
             }
             -> Html msg
     }
@@ -204,6 +208,7 @@ viewModal config =
                 , id lastId
                 ]
                     |> List.map (Html.Attributes.map config.wrapMsg)
+            , autofocusOn = id autofocusId
             }
         ]
 
@@ -221,6 +226,11 @@ firstId =
 lastId : String
 lastId =
     "modal__last-focusable-element"
+
+
+autofocusId : String
+autofocusId =
+    "modal__autofocus-element"
 
 
 viewTitle : ( String, List (Attribute Never) ) -> Html Never
