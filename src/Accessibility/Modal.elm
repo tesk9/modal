@@ -10,9 +10,8 @@ module Accessibility.Modal exposing
 {-|
 
     import Accessibility.Modal as Modal
-    import Html exposing (..)
-    import Html.Attributes exposing (style)
-    import Html.Events exposing (onClick)
+    import Html.Styled exposing (..)
+    import Html.Styled.Events exposing (onClick)
 
     view : Html Modal.Msg
     view =
@@ -40,16 +39,16 @@ module Accessibility.Modal exposing
 
 -}
 
-import Accessibility exposing (..)
-import Accessibility.Aria as Aria
-import Accessibility.Key as Key
-import Accessibility.Role as Role
+import Accessibility.Styled exposing (..)
+import Accessibility.Styled.Aria as Aria
+import Accessibility.Styled.Key as Key
+import Accessibility.Styled.Role as Role
 import Browser
 import Browser.Dom exposing (focus)
 import Browser.Events
-import Html as Root
-import Html.Attributes exposing (id, style)
-import Html.Events exposing (onClick)
+import Html.Styled as Root
+import Html.Styled.Attributes as Attributes exposing (id, style)
+import Html.Styled.Events exposing (onClick)
 import Task
 
 
@@ -237,7 +236,7 @@ view wrapMsg ti attributes model =
                 [ viewBackdrop config
                 , div (style "position" "relative" :: config.modalAttributes)
                     [ viewModal config ]
-                , Root.node "style" [] [ text "body {overflow: hidden;} " ]
+                , Root.node "style" [] [ Root.text "body {overflow: hidden;} " ]
                 ]
 
         Closed ->
@@ -292,20 +291,20 @@ viewModal config =
                             ]
                         , id firstId
                         ]
-                            |> List.map (Html.Attributes.map config.wrapMsg)
+                            |> List.map (Attributes.map config.wrapMsg)
                     , firstFocusableElement =
                         [ Key.onKeyDown [ Key.tabBack (Focus autofocusId) ]
                         , id firstId
                         ]
-                            |> List.map (Html.Attributes.map config.wrapMsg)
+                            |> List.map (Attributes.map config.wrapMsg)
                     , lastFocusableElement =
                         [ Key.onKeyDown [ Key.tab (Focus firstId) ]
                         , id autofocusId
                         ]
-                            |> List.map (Html.Attributes.map config.wrapMsg)
+                            |> List.map (Attributes.map config.wrapMsg)
                     , autofocusOn =
                         id autofocusId
-                            |> Html.Attributes.map config.wrapMsg
+                            |> Attributes.map config.wrapMsg
                     }
 
                 _ ->
@@ -316,20 +315,20 @@ viewModal config =
                             ]
                         , id firstId
                         ]
-                            |> List.map (Html.Attributes.map config.wrapMsg)
+                            |> List.map (Attributes.map config.wrapMsg)
                     , firstFocusableElement =
                         [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
                         , id firstId
                         ]
-                            |> List.map (Html.Attributes.map config.wrapMsg)
+                            |> List.map (Attributes.map config.wrapMsg)
                     , lastFocusableElement =
                         [ Key.onKeyDown [ Key.tab (Focus firstId) ]
                         , id lastId
                         ]
-                            |> List.map (Html.Attributes.map config.wrapMsg)
+                            |> List.map (Attributes.map config.wrapMsg)
                     , autofocusOn =
                         id autofocusId
-                            |> Html.Attributes.map config.wrapMsg
+                            |> Attributes.map config.wrapMsg
                     }
             )
         ]

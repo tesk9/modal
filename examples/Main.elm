@@ -3,9 +3,9 @@ module Main exposing (main)
 import Accessibility.Modal as Modal
 import Browser exposing (element)
 import Dict exposing (Dict)
-import Html exposing (..)
-import Html.Attributes exposing (style)
-import Html.Events exposing (onClick)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (href, id, style)
+import Html.Styled.Events exposing (onClick)
 import Platform
 
 
@@ -15,7 +15,7 @@ main =
         { init = init
         , subscriptions = subscriptions
         , update = update
-        , view = view
+        , view = view >> toUnstyled
         }
 
 
@@ -110,7 +110,7 @@ view model =
                                         (onClick (ModalMsg 1 Modal.close) :: firstFocusableElement)
                                         [ text "Close Modal" ]
                                     , a
-                                        (Html.Attributes.href "#" :: lastFocusableElement)
+                                        (href "#" :: lastFocusableElement)
                                         [ text "I'm a link!" ]
                                     ]
                             )
@@ -133,11 +133,11 @@ view model =
                             (\{ firstFocusableElement, lastFocusableElement } ->
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
                                     [ a
-                                        (Html.Attributes.href "#" :: firstFocusableElement)
+                                        (href "#" :: firstFocusableElement)
                                         [ text "I'm a link!" ]
                                     , button [ onClick (ModalMsg 2 Modal.close) ] [ text "Close Modal" ]
                                     , a
-                                        (Html.Attributes.href "#" :: lastFocusableElement)
+                                        (href "#" :: lastFocusableElement)
                                         [ text "I'm a link!" ]
                                     ]
                             )
@@ -161,7 +161,7 @@ viewModalOpener uniqueId =
             "modal__launch-element-" ++ String.fromInt uniqueId
     in
     button
-        [ Html.Attributes.id elementId
+        [ id elementId
         , onClick (ModalMsg uniqueId (Modal.open elementId))
         ]
         [ text "Launch Modal" ]
