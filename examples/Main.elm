@@ -135,12 +135,12 @@ view model =
                         , wrapMsg = identity
                         , title = ( "Three focusable elements modal", [] )
                         , content =
-                            \{ firstFocusableElement, lastFocusableElement } ->
+                            \{ firstFocusableElement, lastFocusableElement, autofocusOn } ->
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
                                     [ a
                                         (Html.Attributes.href "#" :: firstFocusableElement)
                                         [ text "I'm a link!" ]
-                                    , button [ onClick Modal.close ] [ text "Close Modal" ]
+                                    , button [ onClick Modal.close, autofocusOn ] [ text "Close Modal" ]
                                     , a
                                         (Html.Attributes.href "#" :: lastFocusableElement)
                                         [ text "I'm a link!" ]
