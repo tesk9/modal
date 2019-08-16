@@ -1,7 +1,7 @@
 module Accessibility.Modal exposing
     ( Model, init, subscriptions
     , Msg, update, close, open
-    , view, openOnClick
+    , view
     , Autofocus(..), autofocusOnLastElement, custom, multipleFocusableElementView, onlyFocusableElementView, overlayColor, title, titleStyles
     )
 
@@ -30,7 +30,7 @@ module Accessibility.Modal exposing
 
 @docs Model, init, subscriptions
 @docs Msg, update, close, open
-@docs view, openOnClick
+@docs view
 
 -}
 
@@ -354,18 +354,6 @@ viewTitle ( t, titleAttrs ) =
     h1
         (id modalTitleId :: titleAttrs)
         [ text t ]
-
-
-{-| -}
-openOnClick : (Msg -> msg) -> String -> List (Attribute msg)
-openOnClick wrapMsg uniqueId =
-    let
-        elementId =
-            "modal__launch-element-" ++ uniqueId
-    in
-    [ id elementId
-    , Html.Attributes.map wrapMsg (onClick (OpenModal elementId))
-    ]
 
 
 {-| Pass the id of the element that should receive focus when the modal closes.

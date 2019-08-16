@@ -75,8 +75,8 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Single focusable element" ]
-                    , button (Modal.openOnClick identity "0") [ text "Launch Modal" ]
-                    , Modal.view identity
+                    , viewModalOpener 0
+                    , Modal.view (ModalMsg 0)
                         "Single focusable element modal"
                         [ Modal.overlayColor "rgba(128, 0, 128, 0.7)"
                         , Modal.onlyFocusableElementView
@@ -84,14 +84,13 @@ view model =
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
                                     [ text "Modal content"
                                     , button
-                                        (onClick Modal.close :: onlyFocusableElement)
+                                        (onClick (ModalMsg 0 Modal.close) :: onlyFocusableElement)
                                         [ text "Close Modal" ]
                                     ]
                             )
                         ]
                         modal
                     ]
-                    |> Html.map (ModalMsg 0)
 
             Nothing ->
                 text ""
@@ -99,8 +98,8 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Two focusable elements" ]
-                    , button (Modal.openOnClick identity "1") [ text "Launch Modal" ]
-                    , Modal.view identity
+                    , viewModalOpener 1
+                    , Modal.view (ModalMsg 1)
                         "Two focusable elements modal"
                         [ Modal.overlayColor "rgba(128, 0, 70, 0.7)"
                         , Modal.multipleFocusableElementView
@@ -108,7 +107,7 @@ view model =
                                 div [ style "display" "flex", style "justify-content" "space-between" ]
                                     [ text "Modal content"
                                     , button
-                                        (onClick Modal.close :: firstFocusableElement)
+                                        (onClick (ModalMsg 1 Modal.close) :: firstFocusableElement)
                                         [ text "Close Modal" ]
                                     , a
                                         (Html.Attributes.href "#" :: lastFocusableElement)
@@ -118,7 +117,6 @@ view model =
                         ]
                         modal
                     ]
-                    |> Html.map (ModalMsg 1)
 
             Nothing ->
                 text ""
@@ -126,8 +124,8 @@ view model =
             Just modal ->
                 section []
                     [ h2 [] [ text "Three focusable elements" ]
-                    , button (Modal.openOnClick identity "2") [ text "Launch Modal" ]
-                    , Modal.view identity
+                    , viewModalOpener 2
+                    , Modal.view (ModalMsg 2)
                         "Three focusable elements modal"
                         [ Modal.overlayColor "rgba(70, 0, 128, 0.7)"
                         , Modal.autofocusOnLastElement
@@ -137,7 +135,7 @@ view model =
                                     [ a
                                         (Html.Attributes.href "#" :: firstFocusableElement)
                                         [ text "I'm a link!" ]
-                                    , button [ onClick Modal.close ] [ text "Close Modal" ]
+                                    , button [ onClick (ModalMsg 2 Modal.close) ] [ text "Close Modal" ]
                                     , a
                                         (Html.Attributes.href "#" :: lastFocusableElement)
                                         [ text "I'm a link!" ]
@@ -146,7 +144,6 @@ view model =
                         ]
                         modal
                     ]
-                    |> Html.map (ModalMsg 2)
 
             Nothing ->
                 text ""
@@ -155,3 +152,16 @@ view model =
             ]
             [ text "Scroll the background to find me" ]
         ]
+
+
+viewModalOpener : Int -> Html Msg
+viewModalOpener uniqueId =
+    let
+        elementId =
+            "modal__launch-element-" ++ String.fromInt uniqueId
+    in
+    button
+        [ Html.Attributes.id elementId
+        , onClick (ModalMsg uniqueId (Modal.open elementId))
+        ]
+        [ text "Launch Modal" ]
