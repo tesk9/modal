@@ -2,6 +2,7 @@ module Accessibility.Modal exposing
     ( Model, init, subscriptions
     , update, Msg, close, open
     , view
+    , Attribute
     , multipleFocusableElementView, onlyFocusableElementView
     , autofocusOnLastElement
     , overlayColor, custom, titleStyles
@@ -33,6 +34,7 @@ module Accessibility.Modal exposing
 @docs update, Msg, close, open
 @docs view
 
+@docs Attribute
 @docs multipleFocusableElementView, onlyFocusableElementView
 @docs autofocusOnLastElement
 @docs overlayColor, custom, titleStyles
@@ -117,116 +119,120 @@ type Autofocus
     | Last
 
 
-type Config msg
-    = Config
-        { overlayColor : Color
-        , wrapMsg : Msg -> msg
-        , modalStyle : Style
-        , titleString : String
-        , titleStyles : List Style
-        , autofocusOn : Autofocus
-        , content :
-            { onlyFocusableElement : List (Attribute msg)
-            , firstFocusableElement : List (Attribute msg)
-            , lastFocusableElement : List (Attribute msg)
-            , autofocusOn : Attribute msg
-            }
-            -> Html msg
+type alias Config msg =
+    { overlayColor : Color
+    , wrapMsg : Msg -> msg
+    , modalStyle : Style
+    , titleString : String
+    , titleStyles : List Style
+    , autofocusOn : Autofocus
+    , content :
+        { onlyFocusableElement : List (Accessibility.Styled.Attribute msg)
+        , firstFocusableElement : List (Accessibility.Styled.Attribute msg)
+        , lastFocusableElement : List (Accessibility.Styled.Attribute msg)
+        , autofocusOn : Accessibility.Styled.Attribute msg
         }
+        -> Html msg
+    }
 
 
 defaults : (Msg -> msg) -> String -> Config msg
 defaults wrapMsg t =
-    Config
-        { overlayColor = rgba 128 0 70 0.7
-        , wrapMsg = wrapMsg
-        , modalStyle =
-            batch
-                [ backgroundColor (rgb 255 255 255)
-                , borderRadius (px 8)
-                , border3 (px 2) solid (rgb 127 0 127)
-                , margin2 (px 80) auto
-                , padding (px 20)
-                , maxWidth (px 600)
-                , minHeight (vh 40)
-                ]
-        , titleString = t
-        , titleStyles = []
-        , autofocusOn = Default
-        , content = \_ -> text ""
-        }
+    { overlayColor = rgba 128 0 70 0.7
+    , wrapMsg = wrapMsg
+    , modalStyle =
+        batch
+            [ backgroundColor (rgb 255 255 255)
+            , borderRadius (px 8)
+            , border3 (px 2) solid (rgb 127 0 127)
+            , margin2 (px 80) auto
+            , padding (px 20)
+            , maxWidth (px 600)
+            , minHeight (vh 40)
+            ]
+    , titleString = t
+    , titleStyles = []
+    , autofocusOn = Default
+    , content = \_ -> text ""
+    }
 
 
 {-| -}
-overlayColor : Color -> Config msg -> Config msg
-overlayColor color (Config config) =
-    Config { config | overlayColor = color }
+type Attribute msg
+    = Attribute (Config msg -> Config msg)
 
 
 {-| -}
-title : String -> Config msg -> Config msg
-title t (Config config) =
-    Config { config | titleString = t }
+overlayColor : Color -> Attribute msg
+overlayColor color =
+    Attribute (\config -> { config | overlayColor = color })
 
 
 {-| -}
-titleStyles : List Style -> Config msg -> Config msg
-titleStyles styles (Config config) =
-    Config { config | titleStyles = styles }
+title : String -> Attribute msg
+title t =
+    Attribute (\config -> { config | titleString = t })
 
 
 {-| -}
-custom : List Style -> Config msg -> Config msg
-custom styles (Config config) =
-    Config { config | modalStyle = batch styles }
+titleStyles : List Style -> Attribute msg
+titleStyles styles =
+    Attribute (\config -> { config | titleStyles = styles })
 
 
 {-| -}
-autofocusOnLastElement : Config msg -> Config msg
-autofocusOnLastElement (Config config) =
-    Config { config | autofocusOn = Last }
+custom : List Style -> Attribute msg
+custom styles =
+    Attribute (\config -> { config | modalStyle = batch styles })
 
 
 {-| -}
-onlyFocusableElementView : (List (Attribute msg) -> Html msg) -> Config msg -> Config msg
-onlyFocusableElementView v (Config config) =
-    Config { config | content = \{ onlyFocusableElement } -> v onlyFocusableElement }
+autofocusOnLastElement : Attribute msg
+autofocusOnLastElement =
+    Attribute (\config -> { config | autofocusOn = Last })
+
+
+{-| -}
+onlyFocusableElementView : (List (Accessibility.Styled.Attribute msg) -> Html msg) -> Attribute msg
+onlyFocusableElementView v =
+    Attribute (\config -> { config | content = \{ onlyFocusableElement } -> v onlyFocusableElement })
 
 
 {-| -}
 multipleFocusableElementView :
-    ({ firstFocusableElement : List (Attribute msg)
-     , lastFocusableElement : List (Attribute msg)
-     , autofocusElement : Attribute msg
+    ({ firstFocusableElement : List (Accessibility.Styled.Attribute msg)
+     , lastFocusableElement : List (Accessibility.Styled.Attribute msg)
+     , autofocusElement : Accessibility.Styled.Attribute msg
      }
      -> Html msg
     )
-    -> Config msg
-    -> Config msg
-multipleFocusableElementView v (Config config) =
-    Config
-        { config
-            | content =
-                \{ firstFocusableElement, lastFocusableElement, autofocusOn } ->
-                    v
-                        { firstFocusableElement = firstFocusableElement
-                        , lastFocusableElement = lastFocusableElement
-                        , autofocusElement = autofocusOn
-                        }
-        }
+    -> Attribute msg
+multipleFocusableElementView v =
+    Attribute
+        (\config ->
+            { config
+                | content =
+                    \{ firstFocusableElement, lastFocusableElement, autofocusOn } ->
+                        v
+                            { firstFocusableElement = firstFocusableElement
+                            , lastFocusableElement = lastFocusableElement
+                            , autofocusElement = autofocusOn
+                            }
+            }
+        )
 
 
 {-| -}
 view :
     (Msg -> msg)
     -> String
-    -> List (Config msg -> Config msg)
+    -> List (Attribute msg)
     -> Model
     -> Html msg
 view wrapMsg ti attributes model =
     let
-        (Config config) =
-            List.foldl (\f acc -> f acc) (defaults wrapMsg ti) attributes
+        config =
+            List.foldl (\(Attribute f) acc -> f acc) (defaults wrapMsg ti) attributes
     in
     case model of
         Opened _ ->
@@ -240,7 +246,8 @@ view wrapMsg ti attributes model =
                     ]
                 ]
                 [ viewBackdrop config
-                , div [ css [ position relative, config.modalStyle ] ]
+                , div
+                    [ css [ position relative, config.modalStyle ] ]
                     [ viewModal config ]
                 , Root.node "style" [] [ Root.text "body {overflow: hidden;} " ]
                 ]
@@ -269,21 +276,7 @@ viewBackdrop config =
         []
 
 
-viewModal :
-    { a
-        | titleString : String
-        , titleStyles : List Css.Style
-        , wrapMsg : Msg -> msg
-        , autofocusOn : Autofocus
-        , content :
-            { onlyFocusableElement : List (Attribute msg)
-            , firstFocusableElement : List (Attribute msg)
-            , lastFocusableElement : List (Attribute msg)
-            , autofocusOn : Attribute msg
-            }
-            -> Html msg
-    }
-    -> Html msg
+viewModal : Config msg -> Html msg
 viewModal config =
     section
         [ Role.dialog
