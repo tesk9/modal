@@ -2,9 +2,10 @@ module Main exposing (main)
 
 import Accessibility.Modal as Modal
 import Browser exposing (element)
+import Css exposing (..)
 import Dict exposing (Dict)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (href, id, style)
+import Html.Styled.Attributes exposing (css, href, id)
 import Html.Styled.Events exposing (onClick)
 import Platform
 
@@ -81,10 +82,12 @@ view model =
                         [ Modal.overlayColor "rgba(128, 0, 128, 0.7)"
                         , Modal.onlyFocusableElementView
                             (\onlyFocusableElement ->
-                                div [ style "display" "flex", style "justify-content" "space-between" ]
+                                div [ css [ displayFlex, justifyContent spaceBetween ] ]
                                     [ text "Modal content"
                                     , button
-                                        (onClick (ModalMsg 0 Modal.close) :: onlyFocusableElement)
+                                        (onClick (ModalMsg 0 Modal.close)
+                                            :: onlyFocusableElement
+                                        )
                                         [ text "Close Modal" ]
                                     ]
                             )
@@ -104,7 +107,7 @@ view model =
                         [ Modal.overlayColor "rgba(128, 0, 70, 0.7)"
                         , Modal.multipleFocusableElementView
                             (\{ firstFocusableElement, lastFocusableElement } ->
-                                div [ style "display" "flex", style "justify-content" "space-between" ]
+                                div [ css [ displayFlex, justifyContent spaceBetween ] ]
                                     [ text "Modal content"
                                     , button
                                         (onClick (ModalMsg 1 Modal.close) :: firstFocusableElement)
@@ -131,7 +134,7 @@ view model =
                         , Modal.autofocusOnLastElement
                         , Modal.multipleFocusableElementView
                             (\{ firstFocusableElement, lastFocusableElement } ->
-                                div [ style "display" "flex", style "justify-content" "space-between" ]
+                                div [ css [ displayFlex, justifyContent spaceBetween ] ]
                                     [ a
                                         (href "#" :: firstFocusableElement)
                                         [ text "I'm a link!" ]
@@ -148,7 +151,7 @@ view model =
             Nothing ->
                 text ""
         , div
-            [ style "padding-top" "120vh"
+            [ css [ paddingTop (vh 120) ]
             ]
             [ text "Scroll the background to find me" ]
         ]
