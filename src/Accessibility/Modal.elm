@@ -122,7 +122,8 @@ type Config msg
         { overlayColor : Color
         , wrapMsg : Msg -> msg
         , modalStyle : Style
-        , title : ( String, List (Attribute Never) )
+        , titleString : String
+        , titleStyles : List Style
         , autofocusOn : Autofocus
         , content :
             { onlyFocusableElement : List (Attribute msg)
@@ -149,7 +150,8 @@ defaults wrapMsg t =
                 , maxWidth (px 600)
                 , minHeight (vh 40)
                 ]
-        , title = ( t, [] )
+        , titleString = t
+        , titleStyles = []
         , autofocusOn = Default
         , content = \_ -> text ""
         }
@@ -164,13 +166,13 @@ overlayColor color (Config config) =
 {-| -}
 title : String -> Config msg -> Config msg
 title t (Config config) =
-    Config { config | title = Tuple.mapFirst (\_ -> t) config.title }
+    Config { config | titleString = t }
 
 
 {-| -}
-titleStyles : List (Attribute Never) -> Config msg -> Config msg
+titleStyles : List Style -> Config msg -> Config msg
 titleStyles styles (Config config) =
-    Config { config | title = Tuple.mapSecond (\_ -> styles) config.title }
+    Config { config | titleStyles = styles }
 
 
 {-| -}
@@ -269,7 +271,8 @@ viewBackdrop config =
 
 viewModal :
     { a
-        | title : ( String, List (Attribute Never) )
+        | titleString : String
+        , titleStyles : List Css.Style
         , wrapMsg : Msg -> msg
         , autofocusOn : Autofocus
         , content :
@@ -286,7 +289,7 @@ viewModal config =
         [ Role.dialog
         , Aria.labeledBy modalTitleId
         ]
-        [ map never (viewTitle config.title)
+        [ h1 [ id modalTitleId, css config.titleStyles ] [ text config.titleString ]
         , config.content
             (case config.autofocusOn of
                 Last ->
@@ -358,13 +361,6 @@ lastId =
 autofocusId : String
 autofocusId =
     "modal__autofocus-element"
-
-
-viewTitle : ( String, List (Attribute Never) ) -> Html Never
-viewTitle ( t, titleAttrs ) =
-    h1
-        (id modalTitleId :: titleAttrs)
-        [ text t ]
 
 
 {-| Pass the id of the element that should receive focus when the modal closes.
