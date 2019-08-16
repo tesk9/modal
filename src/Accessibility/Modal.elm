@@ -1,59 +1,57 @@
 module Accessibility.Modal exposing
     ( Model, init, subscriptions
-    , Msg, update, close, open
-    , view, openOnClick
+    , update, Msg, close, open
+    , view
+    , Attribute
+    , multipleFocusableElementView, onlyFocusableElementView
+    , autofocusOnLastElement
+    , overlayColor, custom, titleStyles
     )
 
 {-|
 
     import Accessibility.Modal as Modal
-    import Html exposing (..)
-    import Html.Attributes exposing (style)
-    import Html.Events exposing (onClick)
+    import Html.Styled exposing (..)
+    import Html.Styled.Events exposing (onClick)
 
     view : Html Modal.Msg
     view =
-        Modal.view
-            { overlayColor = "rgba(128, 0, 128, 0.7)"
-            , wrapMsg = identity
-            , modalAttributes =
-                [ style "background-color" "white"
-                , style "border-radius" "4px"
-                , style "border" "2px solid purple"
-                , style "margin" "40px auto"
-                , style "padding" "20px"
-                , style "max-width" "600px"
-                , style "min-height" "40vh"
-                ]
-            , title = ( "Intro Modal", [] )
-            , content =
-                \{ onlyFocusableElement } ->
-                    div
-                        [ style "display" "flex"
-                        ]
+        Modal.view identity
+            "Example modal"
+            [ Modal.onlyFocusableElementView
+                (\onlyFocusableElementAttributes ->
+                    div []
                         [ text "Welcome to this modal! I'm so happy to have you here with me."
                         , button
-                            (onClick Modal.close :: onlyFocusableElement)
-                            [ text "Close intro modal" ]
+                            (onClick Modal.close :: onlyFocusableElementAttributes)
+                            [ text "Close Modal" ]
                         ]
-            }
+                )
+            ]
+            modal
 
 @docs Model, init, subscriptions
-@docs Msg, update, close, open
-@docs view, openOnClick
+@docs update, Msg, close, open
+@docs view
+
+@docs Attribute
+@docs multipleFocusableElementView, onlyFocusableElementView
+@docs autofocusOnLastElement
+@docs overlayColor, custom, titleStyles
 
 -}
 
-import Accessibility exposing (..)
-import Accessibility.Aria as Aria
-import Accessibility.Key as Key
-import Accessibility.Role as Role
+import Accessibility.Styled exposing (..)
+import Accessibility.Styled.Aria as Aria
+import Accessibility.Styled.Key as Key
+import Accessibility.Styled.Role as Role
 import Browser
-import Browser.Dom exposing (focus)
+import Browser.Dom as Dom
 import Browser.Events
-import Html as Root
-import Html.Attributes exposing (id, style)
-import Html.Events exposing (onClick)
+import Css exposing (..)
+import Html.Styled as Root
+import Html.Styled.Attributes as Attributes exposing (css, id)
+import Html.Styled.Events exposing (onClick)
 import Task
 
 
@@ -80,7 +78,7 @@ type Msg
     = OpenModal String
     | CloseModal By
     | Focus String
-    | Focused (Result Browser.Dom.Error ())
+    | Focused (Result Dom.Error ())
 
 
 {-| -}
@@ -89,15 +87,15 @@ update { dismissOnEscAndOverlayClick } msg model =
     case msg of
         OpenModal returnFocusTo ->
             ( Opened returnFocusTo
-            , focus autofocusId
-                |> Task.onError (\_ -> focus firstId)
+            , Dom.focus autofocusId
+                |> Task.onError (\_ -> Dom.focus firstId)
                 |> Task.attempt Focused
             )
 
         CloseModal by ->
             let
                 closeModal returnFocusTo =
-                    ( Closed, Task.attempt Focused (focus returnFocusTo) )
+                    ( Closed, Task.attempt Focused (Dom.focus returnFocusTo) )
             in
             case ( model, by, dismissOnEscAndOverlayClick ) of
                 ( Opened returnFocusTo, _, True ) ->
@@ -110,42 +108,148 @@ update { dismissOnEscAndOverlayClick } msg model =
                     ( model, Cmd.none )
 
         Focus id ->
-            ( model, Task.attempt Focused (focus id) )
+            ( model, Task.attempt Focused (Dom.focus id) )
 
         Focused _ ->
             ( model, Cmd.none )
 
 
-{-| -}
-view :
-    { overlayColor : String
+type Autofocus
+    = Default
+    | Last
+
+
+type alias Config msg =
+    { overlayColor : Color
     , wrapMsg : Msg -> msg
-    , modalAttributes : List (Attribute Never)
-    , title : ( String, List (Attribute Never) )
+    , modalStyle : Style
+    , titleString : String
+    , titleStyles : List Style
+    , autofocusOn : Autofocus
     , content :
-        { onlyFocusableElement : List (Attribute msg)
-        , firstFocusableElement : List (Attribute msg)
-        , lastFocusableElement : List (Attribute msg)
-        , autofocusOn : Attribute msg
+        { onlyFocusableElement : List (Accessibility.Styled.Attribute msg)
+        , firstFocusableElement : List (Accessibility.Styled.Attribute msg)
+        , lastFocusableElement : List (Accessibility.Styled.Attribute msg)
+        , autofocusOn : Accessibility.Styled.Attribute msg
         }
         -> Html msg
     }
+
+
+defaults : (Msg -> msg) -> String -> Config msg
+defaults wrapMsg t =
+    { overlayColor = rgba 128 0 70 0.7
+    , wrapMsg = wrapMsg
+    , modalStyle =
+        batch
+            [ backgroundColor (rgb 255 255 255)
+            , borderRadius (px 8)
+            , border3 (px 2) solid (rgb 127 0 127)
+            , margin2 (px 80) auto
+            , padding (px 20)
+            , maxWidth (px 600)
+            , minHeight (vh 40)
+            ]
+    , titleString = t
+    , titleStyles = []
+    , autofocusOn = Default
+    , content = \_ -> text ""
+    }
+
+
+{-| -}
+type Attribute msg
+    = Attribute (Config msg -> Config msg)
+
+
+{-| -}
+overlayColor : Color -> Attribute msg
+overlayColor color =
+    Attribute (\config -> { config | overlayColor = color })
+
+
+{-| -}
+title : String -> Attribute msg
+title t =
+    Attribute (\config -> { config | titleString = t })
+
+
+{-| -}
+titleStyles : List Style -> Attribute msg
+titleStyles styles =
+    Attribute (\config -> { config | titleStyles = styles })
+
+
+{-| -}
+custom : List Style -> Attribute msg
+custom styles =
+    Attribute (\config -> { config | modalStyle = batch styles })
+
+
+{-| -}
+autofocusOnLastElement : Attribute msg
+autofocusOnLastElement =
+    Attribute (\config -> { config | autofocusOn = Last })
+
+
+{-| -}
+onlyFocusableElementView : (List (Accessibility.Styled.Attribute msg) -> Html msg) -> Attribute msg
+onlyFocusableElementView v =
+    Attribute (\config -> { config | content = \{ onlyFocusableElement } -> v onlyFocusableElement })
+
+
+{-| -}
+multipleFocusableElementView :
+    ({ firstFocusableElement : List (Accessibility.Styled.Attribute msg)
+     , lastFocusableElement : List (Accessibility.Styled.Attribute msg)
+     , autofocusElement : Accessibility.Styled.Attribute msg
+     }
+     -> Html msg
+    )
+    -> Attribute msg
+multipleFocusableElementView v =
+    Attribute
+        (\config ->
+            { config
+                | content =
+                    \{ firstFocusableElement, lastFocusableElement, autofocusOn } ->
+                        v
+                            { firstFocusableElement = firstFocusableElement
+                            , lastFocusableElement = lastFocusableElement
+                            , autofocusElement = autofocusOn
+                            }
+            }
+        )
+
+
+{-| -}
+view :
+    (Msg -> msg)
+    -> String
+    -> List (Attribute msg)
     -> Model
     -> Html msg
-view config model =
+view wrapMsg ti attributes model =
+    let
+        config =
+            List.foldl (\(Attribute f) acc -> f acc) (defaults wrapMsg ti) attributes
+    in
     case model of
         Opened _ ->
             div
-                [ style "position" "fixed"
-                , style "top" "0"
-                , style "left" "0"
-                , style "width" "100%"
-                , style "height" "100%"
+                [ css
+                    [ position fixed
+                    , top zero
+                    , left zero
+                    , width (pct 100)
+                    , height (pct 100)
+                    ]
                 ]
                 [ viewBackdrop config
-                , div (style "position" "relative" :: config.modalAttributes)
+                , div
+                    [ css [ position relative, config.modalStyle ] ]
                     [ viewModal config ]
-                , Root.node "style" [] [ text "body {overflow: hidden;} " ]
+                , Root.node "style" [] [ Root.text "body {overflow: hidden;} " ]
                 ]
 
         Closed ->
@@ -153,7 +257,7 @@ view config model =
 
 
 viewBackdrop :
-    { a | wrapMsg : Msg -> msg, overlayColor : String }
+    { a | wrapMsg : Msg -> msg, overlayColor : Color }
     -> Html msg
 viewBackdrop config =
     Root.div
@@ -161,55 +265,74 @@ viewBackdrop config =
         -- the overlay. This behavior is available to non-mouse users as
         -- well via the ESC key, so imo it's fine to have this div
         -- be clickable but not focusable.
-        [ style "position" "absolute"
-        , style "width" "100%"
-        , style "height" "100%"
-        , style "background-color" config.overlayColor
+        [ css
+            [ position absolute
+            , width (pct 100)
+            , height (pct 100)
+            , backgroundColor config.overlayColor
+            ]
         , onClick (config.wrapMsg (CloseModal OverlayClick))
         ]
         []
 
 
-viewModal :
-    { a
-        | title : ( String, List (Attribute Never) )
-        , wrapMsg : Msg -> msg
-        , content :
-            { onlyFocusableElement : List (Attribute msg)
-            , firstFocusableElement : List (Attribute msg)
-            , lastFocusableElement : List (Attribute msg)
-            , autofocusOn : Attribute msg
-            }
-            -> Html msg
-    }
-    -> Html msg
+viewModal : Config msg -> Html msg
 viewModal config =
     section
         [ Role.dialog
         , Aria.labeledBy modalTitleId
         ]
-        [ map never (viewTitle config.title)
+        [ h1 [ id modalTitleId, css config.titleStyles ] [ text config.titleString ]
         , config.content
-            { onlyFocusableElement =
-                [ Key.onKeyDown
-                    [ Key.tabBack (Focus firstId)
-                    , Key.tab (Focus firstId)
-                    ]
-                , id firstId
-                ]
-                    |> List.map (Html.Attributes.map config.wrapMsg)
-            , firstFocusableElement =
-                [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
-                , id firstId
-                ]
-                    |> List.map (Html.Attributes.map config.wrapMsg)
-            , lastFocusableElement =
-                [ Key.onKeyDown [ Key.tab (Focus firstId) ]
-                , id lastId
-                ]
-                    |> List.map (Html.Attributes.map config.wrapMsg)
-            , autofocusOn = id autofocusId
-            }
+            (case config.autofocusOn of
+                Last ->
+                    { onlyFocusableElement =
+                        [ Key.onKeyDown
+                            [ Key.tabBack (Focus firstId)
+                            , Key.tab (Focus firstId)
+                            ]
+                        , id firstId
+                        ]
+                            |> List.map (Attributes.map config.wrapMsg)
+                    , firstFocusableElement =
+                        [ Key.onKeyDown [ Key.tabBack (Focus autofocusId) ]
+                        , id firstId
+                        ]
+                            |> List.map (Attributes.map config.wrapMsg)
+                    , lastFocusableElement =
+                        [ Key.onKeyDown [ Key.tab (Focus firstId) ]
+                        , id autofocusId
+                        ]
+                            |> List.map (Attributes.map config.wrapMsg)
+                    , autofocusOn =
+                        id autofocusId
+                            |> Attributes.map config.wrapMsg
+                    }
+
+                _ ->
+                    { onlyFocusableElement =
+                        [ Key.onKeyDown
+                            [ Key.tabBack (Focus firstId)
+                            , Key.tab (Focus firstId)
+                            ]
+                        , id firstId
+                        ]
+                            |> List.map (Attributes.map config.wrapMsg)
+                    , firstFocusableElement =
+                        [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
+                        , id firstId
+                        ]
+                            |> List.map (Attributes.map config.wrapMsg)
+                    , lastFocusableElement =
+                        [ Key.onKeyDown [ Key.tab (Focus firstId) ]
+                        , id lastId
+                        ]
+                            |> List.map (Attributes.map config.wrapMsg)
+                    , autofocusOn =
+                        id autofocusId
+                            |> Attributes.map config.wrapMsg
+                    }
+            )
         ]
 
 
@@ -231,25 +354,6 @@ lastId =
 autofocusId : String
 autofocusId =
     "modal__autofocus-element"
-
-
-viewTitle : ( String, List (Attribute Never) ) -> Html Never
-viewTitle ( title, titleAttrs ) =
-    h1
-        (id modalTitleId :: titleAttrs)
-        [ text title ]
-
-
-{-| -}
-openOnClick : (Msg -> msg) -> String -> List (Attribute msg)
-openOnClick wrapMsg uniqueId =
-    let
-        elementId =
-            "modal__launch-element-" ++ uniqueId
-    in
-    [ id elementId
-    , Html.Attributes.map wrapMsg (onClick (OpenModal elementId))
-    ]
 
 
 {-| Pass the id of the element that should receive focus when the modal closes.
