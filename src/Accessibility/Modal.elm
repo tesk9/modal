@@ -2,6 +2,7 @@ module Accessibility.Modal exposing
     ( Model, init, subscriptions
     , Msg, update, close, open
     , view, openOnClick
+    , Autofocus(..)
     )
 
 {-|
@@ -16,6 +17,7 @@ module Accessibility.Modal exposing
         Modal.view
             { overlayColor = "rgba(128, 0, 128, 0.7)"
             , wrapMsg = identity
+            , autofocusOn = Modal.Default
             , modalAttributes =
                 [ style "background-color" "white"
                 , style "border-radius" "4px"
@@ -116,12 +118,18 @@ update { dismissOnEscAndOverlayClick } msg model =
             ( model, Cmd.none )
 
 
+type Autofocus
+    = Default
+    | Last
+
+
 {-| -}
 view :
     { overlayColor : String
     , wrapMsg : Msg -> msg
     , modalAttributes : List (Attribute Never)
     , title : ( String, List (Attribute Never) )
+    , autofocusOn : Autofocus
     , content :
         { onlyFocusableElement : List (Attribute msg)
         , firstFocusableElement : List (Attribute msg)
@@ -174,6 +182,7 @@ viewModal :
     { a
         | title : ( String, List (Attribute Never) )
         , wrapMsg : Msg -> msg
+        , autofocusOn : Autofocus
         , content :
             { onlyFocusableElement : List (Attribute msg)
             , firstFocusableElement : List (Attribute msg)
@@ -190,26 +199,55 @@ viewModal config =
         ]
         [ map never (viewTitle config.title)
         , config.content
-            { onlyFocusableElement =
-                [ Key.onKeyDown
-                    [ Key.tabBack (Focus firstId)
-                    , Key.tab (Focus firstId)
-                    ]
-                , id firstId
-                ]
-                    |> List.map (Html.Attributes.map config.wrapMsg)
-            , firstFocusableElement =
-                [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
-                , id firstId
-                ]
-                    |> List.map (Html.Attributes.map config.wrapMsg)
-            , lastFocusableElement =
-                [ Key.onKeyDown [ Key.tab (Focus firstId) ]
-                , id lastId
-                ]
-                    |> List.map (Html.Attributes.map config.wrapMsg)
-            , autofocusOn = id autofocusId
-            }
+            (case config.autofocusOn of
+                Last ->
+                    { onlyFocusableElement =
+                        [ Key.onKeyDown
+                            [ Key.tabBack (Focus firstId)
+                            , Key.tab (Focus firstId)
+                            ]
+                        , id firstId
+                        ]
+                            |> List.map (Html.Attributes.map config.wrapMsg)
+                    , firstFocusableElement =
+                        [ Key.onKeyDown [ Key.tabBack (Focus autofocusId) ]
+                        , id firstId
+                        ]
+                            |> List.map (Html.Attributes.map config.wrapMsg)
+                    , lastFocusableElement =
+                        [ Key.onKeyDown [ Key.tab (Focus firstId) ]
+                        , id autofocusId
+                        ]
+                            |> List.map (Html.Attributes.map config.wrapMsg)
+                    , autofocusOn =
+                        id autofocusId
+                            |> Html.Attributes.map config.wrapMsg
+                    }
+
+                _ ->
+                    { onlyFocusableElement =
+                        [ Key.onKeyDown
+                            [ Key.tabBack (Focus firstId)
+                            , Key.tab (Focus firstId)
+                            ]
+                        , id firstId
+                        ]
+                            |> List.map (Html.Attributes.map config.wrapMsg)
+                    , firstFocusableElement =
+                        [ Key.onKeyDown [ Key.tabBack (Focus lastId) ]
+                        , id firstId
+                        ]
+                            |> List.map (Html.Attributes.map config.wrapMsg)
+                    , lastFocusableElement =
+                        [ Key.onKeyDown [ Key.tab (Focus firstId) ]
+                        , id lastId
+                        ]
+                            |> List.map (Html.Attributes.map config.wrapMsg)
+                    , autofocusOn =
+                        id autofocusId
+                            |> Html.Attributes.map config.wrapMsg
+                    }
+            )
         ]
 
 

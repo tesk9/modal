@@ -80,6 +80,7 @@ view model =
                         { overlayColor = "rgba(128, 0, 128, 0.7)"
                         , modalAttributes = modalAttributes
                         , wrapMsg = identity
+                        , autofocusOn = Modal.Default
                         , title = ( "Single focusable element modal", [] )
                         , content =
                             \{ onlyFocusableElement } ->
@@ -105,6 +106,7 @@ view model =
                         { overlayColor = "rgba(128, 0, 70, 0.7)"
                         , modalAttributes = modalAttributes
                         , wrapMsg = identity
+                        , autofocusOn = Modal.Default
                         , title = ( "Two focusable elements modal", [] )
                         , content =
                             \{ firstFocusableElement, lastFocusableElement } ->
@@ -133,6 +135,7 @@ view model =
                         { overlayColor = "rgba(70, 0, 128, 0.7)"
                         , modalAttributes = modalAttributes
                         , wrapMsg = identity
+                        , autofocusOn = Modal.Last
                         , title = ( "Three focusable elements modal", [] )
                         , content =
                             \{ firstFocusableElement, lastFocusableElement, autofocusOn } ->
@@ -140,7 +143,7 @@ view model =
                                     [ a
                                         (Html.Attributes.href "#" :: firstFocusableElement)
                                         [ text "I'm a link!" ]
-                                    , button [ onClick Modal.close, autofocusOn ] [ text "Close Modal" ]
+                                    , button [ onClick Modal.close ] [ text "Close Modal" ]
                                     , a
                                         (Html.Attributes.href "#" :: lastFocusableElement)
                                         [ text "I'm a link!" ]
